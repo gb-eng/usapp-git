@@ -1,0 +1,127 @@
+.dashboard-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 80px 24px 60px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.dashboard-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.dashboard-empty h1 {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.dashboard-empty h2 {
+  font-size: 20px;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.dashboard-empty > p {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.create-class-form,
+.join-class-form {
+  width: 100%;
+}
+
+.create-class-fields {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.field {
+  flex: 1;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.field select,
+.field input,
+.join-class-form input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--color-card-bg);
+}
+
+.field-readonly {
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  background: var(--color-bg);
+}
+
+.join-class-form input {
+  text-align: center;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.class-code-box {
+  width: 100%;
+  background: var(--color-yellow-bg);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.class-code-box p {
+  margin: 0;
+  color: var(--color-yellow-text);
+  font-size: 13px;
+}
+
+.class-code {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 6px 0 !important;
+  letter-spacing: 2px;
+}
+
+.dashboard-error {
+  color: #C0392B;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.dashboard-placeholder {
+  max-width: 500px;
+  margin: 60px auto;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.dashboard-placeholder h1 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.dashboard-placeholder p {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}

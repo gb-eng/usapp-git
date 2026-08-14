@@ -1,0 +1,87 @@
+.activity-main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+.activity-body {
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding: 32px 24px;
+  background: var(--color-card-bg);
+}
+
+.activity-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.activity-intro-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.activity-intro h2 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.activity-intro > p {
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.activity-intro-filipino {
+  margin-bottom: 24px !important;
+  font-style: italic;
+}
+
+.activity-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 24px;
+  animation: resultsFadeIn 0.3s ease;
+}
+
+@keyframes resultsFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.activity-results-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.activity-results h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.activity-results-score {
+  font-size: 44px;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.activity-view-all-link {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 12px;
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.activity-view-all-link:hover {
+  color: var(--color-text);
+}

@@ -1,0 +1,144 @@
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.review-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-yellow-bg);
+  color: var(--color-yellow-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.review-header h2 {
+  font-size: 18px;
+}
+
+.review-header p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.review-prompt-box {
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.review-prompt-box p {
+  margin: 0;
+  font-style: italic;
+}
+
+.review-photo-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.review-photo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.review-photo:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-sm);
+}
+
+.review-label {
+  display: block;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.review-response-box {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.review-audio-box,
+.review-drive-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.review-audio {
+  width: 100%;
+}
+
+.review-drive-icon {
+  font-size: 28px;
+}
+
+.review-rating-section textarea {
+  margin-bottom: 16px;
+}
+
+.review-rating-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.review-rating-label {
+  text-align: center;
+}
+
+.review-rating-options {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.rating-btn {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-card-bg);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast),
+    color var(--transition-fast), transform var(--transition-fast);
+}
+
+.rating-btn:hover {
+  border-color: var(--color-blue);
+  transform: translateY(-1px);
+}
+
+.rating-btn-active {
+  background: var(--color-blue);
+  color: #fff;
+  border-color: var(--color-blue);
+}
+
+.rating-btn-active:hover {
+  transform: none;
+}
+
+.review-confirm-row {
+  display: flex;
+  justify-content: flex-end;
+}

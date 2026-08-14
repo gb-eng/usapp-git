@@ -1,0 +1,134 @@
+.os-prompt {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.os-prompt-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.os-prompt h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.os-instructions {
+  color: var(--color-text);
+  font-size: 14px;
+  margin: 0;
+}
+
+.os-editor {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.os-editor:focus-within {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+}
+
+.os-toolbar {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.os-editor textarea {
+  width: 100%;
+  border: none;
+  padding: 16px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.os-editor textarea:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.os-submit-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 32px;
+}
+
+.os-class-responses-label {
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.os-class-responses {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.os-response-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.os-class-responses .os-response-card {
+  margin-bottom: 0;
+}
+
+.os-class-responses .os-response-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-blue);
+}
+
+.os-response-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.os-response-card-header span:last-child {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.os-response-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.os-load-more {
+  display: block;
+  margin: 16px auto 0;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  letter-spacing: 0.2em;
+  transition: color var(--transition-fast);
+}
+
+.os-load-more:hover {
+  color: var(--color-text);
+}

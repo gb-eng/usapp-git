@@ -1,0 +1,98 @@
+.login-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 24px 40px;
+}
+
+.login-logo {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+
+.login-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow-sm);
+}
+
+.role-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.role-toggle button { flex: 1; }
+
+.login-card label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+
+.login-card input {
+  margin-bottom: 6px;
+}
+
+.forgot-link {
+  display: block;
+  text-align: right;
+  font-size: 13px;
+  color: var(--color-yellow-text);
+  margin: 10px 0 20px;
+  transition: opacity var(--transition-fast);
+}
+
+.forgot-link:hover {
+  opacity: 0.7;
+}
+
+.login-error {
+  color: #C0392B;
+  font-size: 13px;
+  margin-bottom: 12px;
+  animation: fadeSlideIn 0.2s ease;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.or-divider {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  margin: 16px 0;
+}
+
+.guest-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 10px;
+}
+
+.signup-note {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 16px;
+}
+
+.signup-note a {
+  color: var(--color-blue);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity var(--transition-fast);
+}
+
+.signup-note a:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}

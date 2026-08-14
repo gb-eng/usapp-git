@@ -1,0 +1,68 @@
+.audio-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-card-bg);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.audio-bar:hover {
+  border-color: var(--color-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.audio-bar-label {
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 70px;
+}
+
+.audio-bar-play {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.audio-bar-play:hover {
+  background: var(--color-blue);
+  color: #fff;
+}
+
+.audio-bar-play:active {
+  transform: scale(0.9);
+}
+
+.audio-bar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.audio-bar-fill {
+  height: 100%;
+  background: var(--color-text-secondary);
+  border-radius: 999px;
+  transition: width 0.1s linear;
+}
+
+.audio-bar-time {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  min-width: 36px;
+  text-align: right;
+}

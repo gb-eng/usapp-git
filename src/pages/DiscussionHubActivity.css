@@ -1,0 +1,144 @@
+.dh-prompt {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dh-prompt-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.dh-prompt h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.dh-instructions {
+  color: var(--color-text);
+  font-size: 14px;
+  margin: 0;
+}
+
+.dh-record-box {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.dh-mic-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-blue);
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+.dh-mic-btn:hover {
+  background: var(--color-blue-hover);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+.dh-mic-btn:active {
+  transform: scale(0.95);
+}
+
+.dh-mic-recording {
+  background: #E74C3C;
+  animation: micPulse 1.4s ease-in-out infinite;
+}
+
+.dh-mic-recording:hover {
+  background: #D33F2F;
+}
+
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+}
+
+.dh-record-box > p {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin: 0;
+}
+
+.dh-playing-label {
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  align-self: flex-start;
+}
+
+.dh-record-box .audio-bar {
+  width: 100%;
+  border: none;
+  padding: 0;
+}
+
+.dh-record-box .audio-bar:hover {
+  border: none;
+  box-shadow: none;
+}
+
+.dh-recorded-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.dh-recorded-actions .btn {
+  padding: 12px 32px;
+}
+
+.dh-submitted-label {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0 0 12px;
+  align-self: flex-start;
+}
+
+.dh-class-responses-label {
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.dh-class-responses {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dh-load-more {
+  display: block;
+  margin: 16px auto 0;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  letter-spacing: 0.2em;
+  transition: color var(--transition-fast);
+}
+
+.dh-load-more:hover {
+  color: var(--color-text);
+}

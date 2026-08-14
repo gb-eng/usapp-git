@@ -1,0 +1,110 @@
+.story-body {
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding: 32px 24px;
+  background: var(--color-card-bg);
+}
+
+.story-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin: 0 auto 20px;
+  max-width: 640px;
+}
+
+.story-card-title {
+  font-style: italic;
+  margin: 0 0 16px;
+}
+
+.story-photo-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.story-photo {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.story-photo:hover {
+  transform: scale(1.04);
+  box-shadow: var(--shadow-md);
+}
+
+.story-photo-placeholder {
+  display: flex;
+}
+
+.story-hint {
+  background: var(--color-yellow-bg);
+  color: var(--color-yellow-text);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.story-instructions {
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.story-label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.story-body input,
+.story-body textarea {
+  margin-bottom: 12px;
+}
+
+.story-body textarea {
+  resize: vertical;
+}
+
+.story-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.story-response-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.story-response-row input {
+  margin-bottom: 0;
+}
+
+.story-response-row .btn {
+  white-space: nowrap;
+}
+
+.story-rating-pill {
+  display: inline-block;
+  background: var(--color-yellow-bg);
+  color: var(--color-yellow-text);
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  margin-top: 8px;
+}

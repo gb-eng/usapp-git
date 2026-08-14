@@ -1,0 +1,214 @@
+.teacher-dashboard {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+.avatar-circle-blue {
+  background: var(--color-blue);
+}
+
+.teacher-tab-row {
+  margin: 20px 0 0;
+}
+
+.tab-btn-active-blue {
+  background: var(--color-blue);
+  color: #fff;
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-yellow-text);
+  color: #fff;
+  font-size: 11px;
+  margin-left: 6px;
+}
+
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0 12px;
+}
+
+.section-title-row .section-title {
+  margin: 0;
+}
+
+.topic-row {
+  border: none;
+  background: var(--color-bg);
+  margin: 0;
+}
+
+.topic-row summary {
+  padding: 12px 20px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  transition: color var(--transition-fast);
+}
+
+.topic-row summary:hover {
+  color: var(--color-text);
+}
+
+.topic-row summary::-webkit-details-marker { display: none; }
+
+.topic-body {
+  padding: 0 12px 12px;
+}
+
+.teacher-activity-row {
+  background: var(--color-card-bg);
+  border-radius: var(--radius-sm);
+  margin: 8px 0;
+  transition: box-shadow var(--transition-fast);
+}
+
+.teacher-activity-row:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.teacher-activity-row summary {
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.teacher-activity-row summary::-webkit-details-marker { display: none; }
+
+.teacher-activity-body {
+  border-top: 1px solid var(--color-border);
+  padding: 8px 16px;
+}
+
+.teacher-activity-student-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 6px 0;
+}
+
+.teacher-more-link {
+  background: none;
+  border: none;
+  color: var(--color-blue);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: opacity var(--transition-fast);
+}
+
+.teacher-more-link:hover {
+  opacity: 0.7;
+}
+
+.review-subgroup {
+  background: var(--color-card-bg);
+  border-radius: var(--radius-sm);
+  margin: 8px 0;
+  transition: box-shadow var(--transition-fast);
+}
+
+.review-subgroup:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.review-subgroup summary {
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.review-subgroup summary::-webkit-details-marker { display: none; }
+
+.review-subgroup-list {
+  border-top: 1px solid var(--color-border);
+  padding: 4px 16px;
+}
+
+.review-subgroup-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+.review-subgroup-row button {
+  background: none;
+  border: none;
+  color: var(--color-blue);
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 13px;
+  transition: opacity var(--transition-fast);
+}
+
+.review-subgroup-row button:hover {
+  opacity: 0.7;
+}
+
+.score-row-teacher {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast);
+}
+
+.score-row-teacher:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.score-row-teacher-summary {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: var(--color-card-bg);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color var(--transition-fast);
+}
+
+.score-row-teacher-summary:hover {
+  background: var(--color-bg);
+}
+
+.score-row-teacher-detail {
+  border-top: 1px solid var(--color-border);
+  padding: 10px 20px;
+  background: var(--color-bg);
+}
+
+.score-row-teacher-detail > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 6px 0;
+}

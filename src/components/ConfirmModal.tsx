@@ -1,0 +1,43 @@
+import './Modal.css'
+
+interface ConfirmModalProps {
+  icon: string
+  title: string
+  message: string
+  confirmLabel: string
+  onClose: () => void
+  onConfirm: () => void
+  loading?: boolean
+  /** 'red' for destructive actions (Remove Class), 'blue' for neutral ones (Leave Class). */
+  variant?: 'blue' | 'red'
+}
+
+export default function ConfirmModal({
+  icon,
+  title,
+  message,
+  confirmLabel,
+  onClose,
+  onConfirm,
+  loading = false,
+  variant = 'blue',
+}: ConfirmModalProps) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="modal-close" onClick={onClose} aria-label="Close">×</button>
+        <span className="modal-icon" aria-hidden="true">{icon}</span>
+        <h2>{title}</h2>
+        <p>{message}</p>
+        <button
+          type="button"
+          className={variant === 'red' ? 'btn btn-danger btn-lg' : 'btn btn-blue btn-lg'}
+          onClick={onConfirm}
+          disabled={loading}
+        >
+          {loading ? 'Please wait...' : confirmLabel}
+        </button>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,92 @@
+.lesson-main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+.lesson-header {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-bottom: none;
+  padding: 24px;
+  background: var(--color-card-bg);
+}
+
+.lesson-eyebrow {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.lesson-header h1 {
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+
+.lesson-back {
+  color: var(--color-yellow-text);
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity var(--transition-fast);
+}
+
+.lesson-back:hover {
+  opacity: 0.7;
+}
+
+.lesson-body {
+  border: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding: 32px 24px;
+  background: var(--color-card-bg);
+}
+
+.lesson-body h2 {
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+
+.lesson-content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.lesson-content p {
+  margin: 0 0 16px;
+}
+
+.lesson-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.lesson-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.lesson-activity-btn {
+  text-align: left;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  background: var(--color-card-bg);
+  font-size: 15px;
+  cursor: pointer;
+  transition: box-shadow var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
+}
+
+.lesson-activity-btn:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--color-blue);
+}
+
+.lesson-activity-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}

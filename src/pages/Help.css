@@ -1,0 +1,40 @@
+.help-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+}
+
+.help-main section { margin-bottom: 36px; }
+.help-main h2 { font-size: 22px; margin-bottom: 12px; }
+.help-main p { color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 12px; }
+
+.help-main a {
+  color: var(--color-blue);
+  transition: opacity var(--transition-fast);
+}
+
+.help-main a:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+.help-intro {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.help-intro > div:first-child { flex: 1; }
+
+.help-illustration {
+  font-size: 60px;
+  flex-shrink: 0;
+  transition: transform var(--transition-base);
+}
+
+.help-illustration:hover {
+  transform: rotate(-4deg) scale(1.05);
+}
+
+@media (max-width: 600px) {
+  .help-intro { flex-direction: column; }
+}
