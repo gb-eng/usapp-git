@@ -541,7 +541,11 @@ export default function EditClassModal({
                 onChange={(e) => { handleStoryFileChange(e.target.files); e.target.value = '' }}
               />
             </label>
-            {storyFileError && <p className="dashboard-error">{storyFileError}</p>}
+            {storyFileError && (
+              <p className="story-file-error" role="alert">
+                {storyFileError}
+              </p>
+            )}
             {storySaved && <p className="edit-class-success">✓ Storytelling set saved.</p>}
             {storyPhotos.length > 0 && (
               <div className="edit-class-photo-grid">
