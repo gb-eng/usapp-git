@@ -291,8 +291,13 @@ export default function EditClassModal({
 
     const { data, error: insertError } = await supabase
       .from('storytelling_sets')
-      .insert({ lesson_id: lessonId, title: storyTitle.trim(), photo_urls: photoUrls })
-      .select('id, title, photo_urls')
+      .insert({
+        lesson_id: lessonId,
+        title: storyTitle.trim(),
+        photo_urls: photoUrls,
+        pictures: photoUrls
+      })
+      .select('id, title, photo_urls, pictures')
       .single()
     if (insertError) {
       setError(insertError.message)
