@@ -289,6 +289,13 @@ export default function EditClassModal({
       return
     }
 
+    console.log('STORYTELLING INSERT PAYLOAD', {
+      lesson_id: lessonId,
+      title: storyTitle.trim(),
+      photo_urls: photoUrls,
+      pictures: photoUrls,
+    })
+
     const { data, error: insertError } = await supabase
       .from('storytelling_sets')
       .insert({
