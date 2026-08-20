@@ -197,35 +197,60 @@ export default function EditClassModal({
   }
 
   function handleStoryFileChange(fileList: FileList | null) {
-    setStoryFileError(null)
-    setStorySaved(false)
-    if (!fileList || fileList.length === 0) return
+  setStoryFileError(null)
+  setStorySaved(false)
 
-    const incoming = Array.from(fileList)
+  if (!fileList || fileList.length === 0) return
 
-    const badType = incoming.find((f) => !ALLOWED_TYPES.includes(f.type))
-    if (badType) {
-      setStoryFileError(`"${badType.name}" isn't a .jpeg file. Only .jpeg photos are allowed.`)
-      return
-    }
+  const incoming = Array.from(fileList)
 
-    const tooBig = incoming.find((f) => f.size > MAX_PHOTO_MB * 1024 * 1024)
-    if (tooBig) {
-      setStoryFileError(`"${tooBig.name}" is ${(tooBig.size / (1024 * 1024)).toFixed(1)}MB — max is ${MAX_PHOTO_MB}MB.`)
-      return
-    }
-
-    setStoryPhotos((prev) => {
-      const existingKeys = new Set(prev.map((p) => `${p.file.name}-${p.file.size}`))
-      const deduped = incoming.filter((f) => !existingKeys.has(`${f.name}-${f.size}`))
-      const merged = [...prev, ...deduped.map((file) => ({ file, previewUrl: URL.createObjectURL(file) }))]
-
-      if (merged.length > REQUIRED_PHOTOS) {
-        setStoryFileError(`Exactly ${REQUIRED_PHOTOS} photos are required — you have ${merged.length}. Remove one below.`)
-      }
-      return merged
-    })
+  const badType = incoming.find((f) => !ALLOWED_TYPES.includes(f.type))
+  if (badType) {
+    setStoryFileError(
+      `"${badType.name}" isn't a .jpeg file. Only .jpeg photos are allowed.`
+    )
+    return
   }
+
+  const tooBig = incoming.find(
+    (f) => f.size > MAX_PHOTO_MB * 1024 * 1024
+  )
+
+  if (tooBig) {
+    setStoryFileError(
+      `"${tooBig.name}" is ${(tooBig.size / (1024 * 1024)).toFixed(1)}MB — max is ${MAX_PHOTO_MB}MB.`
+    )
+    return
+  }
+
+  setStoryPhotos((prev) => {
+    const existingKeys = new Set(
+      prev.map((p) => `${p.file.name}-${p.file.size}`)
+    )
+
+    const deduped = incoming.filter(
+      (f) => !existingKeys.has(`${f.name}-${f.size}`)
+    )
+
+    const newTotal = prev.length + deduped.length
+
+    // Do not add anything if this selection would exceed 3 photos.
+    if (newTotal > REQUIRED_PHOTOS) {
+      setStoryFileError(
+        `You can only upload ${REQUIRED_PHOTOS} photos. You currently have ${prev.length}.`
+      )
+      return prev
+    }
+
+    return [
+      ...prev,
+      ...deduped.map((file) => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+      })),
+    ]
+  })
+}
 
   function removeStoryPhoto(index: number) {
     setStoryFileError(null)
@@ -523,14 +548,25 @@ export default function EditClassModal({
                 {storyPhotos.map((p, i) => (
                   <div key={`${p.file.name}-${p.file.size}`} className="edit-class-photo-thumb">
                     <img src={p.previewUrl} alt={p.file.name} />
-                    <span className="edit-class-photo-size">{(p.file.size / (1024 * 1024)).toFixed(1)}MB</span>
+                  <span className="edit-class-photo-size">
+                    {p.file.size < 1024 * 1024
+                      ? `${(p.file.size / 1024).toFixed(1)}KB`
+                      : `${(p.file.size / (1024 * 1024)).toFixed(1)}MB`}
+                  </span>
                     <button type="button" onClick={() => removeStoryPhoto(i)} className="edit-class-remove-photo">Remove</button>
                   </div>
                 ))}
               </div>
             )}
             <div className="edit-class-add-row">
-              <button type="button" className="btn btn-add" disabled={loading} onClick={handleAddStorytellingSet}>Add</button>
+            <button
+              type="button"
+              className="btn btn-add"
+              disabled={loading}
+              onClick={handleAddStorytellingSet}
+            >
+              Add
+            </button>
             </div>
 
             <hr />
