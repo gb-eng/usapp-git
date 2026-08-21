@@ -84,6 +84,13 @@ const { data: quizzes, error: quizzesError } = await supabase
   .select('id, question, hint, choices, correct_index, explanation, filipino')
   .in('id', activityRes.data.item_ids)
 
+  
+console.log("QUIZ FETCH DEBUG", {
+  quizzes,
+  quizzesError,
+  requestedIds: activityRes.data.item_ids
+})
+
 if (quizzesError) {
   setError(quizzesError.message)
   return

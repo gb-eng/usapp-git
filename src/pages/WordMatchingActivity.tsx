@@ -83,6 +83,12 @@ const { data: words, error: wordsError } = await supabase
   .select('id, word, choices, correct_index, explanation, filipino')
   .in('id', activityRes.data.item_ids)
 
+console.log("WORD BANK DEBUG", {
+  requestedIds: activityRes.data.item_ids,
+  returnedWords: words,
+  count: words?.length
+})
+
 if (wordsError) {
   setError(wordsError.message)
   return
