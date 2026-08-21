@@ -56,6 +56,10 @@ export default function EditClassModal({
 
   const [savingLessonId, setSavingLessonId] = useState<string | null>(null)
 
+  const [generatingActivity, setGeneratingActivity] = useState<'quick_recall' | 'word_matching' | null>(null)
+  const [generationMessage, setGenerationMessage] = useState<string | null>(null)
+  const [generationError, setGenerationError] = useState<string | null>(null)
+
   useEffect(() => {
     loadLessons()
   }, [classId])
@@ -317,6 +321,66 @@ export default function EditClassModal({
     setStorySaved(true)
     onLessonsChanged()
   }
+
+  async function generateActivitySet(activityType: 'quick_recall' | 'word_matching') {
+  const lessonId = await ensureLessonSaved()
+  if (!lessonId) return
+
+  setGeneratingActivity(activityType)
+  setGenerationMessage(null)
+  setGenerationError(null)
+
+  const table = activityType === 'quick_recall' ? 'quiz_bank' : 'word_bank'
+
+  const { data: bankItems, error: bankError } = await supabase
+    .from(table)
+    .select('id')
+    .eq('lesson_id', lessonId)
+
+  if (bankError) {
+    setGenerationError(bankError.message)
+    setGeneratingActivity(null)
+    return
+  }
+
+  if (!bankItems || bankItems.length < 10) {
+    setGenerationError(
+      `Not enough ${activityType === 'quick_recall' ? 'Quick Recall questions' : 'Word Matching words'} available for this lesson. At least 10 are required.`
+    )
+    setGeneratingActivity(null)
+    return
+  }
+
+  const shuffled = [...bankItems].sort(() => Math.random() - 0.5)
+  const selectedIds = shuffled.slice(0, 10).map((item) => item.id)
+
+  const { error: saveError } = await supabase
+    .from('lesson_activity_sets')
+    .upsert(
+      {
+        lesson_id: lessonId,
+        activity_type: activityType,
+        item_ids: selectedIds,
+      },
+      {
+        onConflict: 'lesson_id,activity_type',
+      }
+    )
+
+  if (saveError) {
+    setGenerationError(saveError.message)
+    setGeneratingActivity(null)
+    return
+  }
+
+  setGenerationMessage(
+    activityType === 'quick_recall'
+      ? '✓ 10 Quick Recall questions generated for this lesson.'
+      : '✓ 10 Word Matching words generated for this lesson.'
+  )
+
+  setGeneratingActivity(null)
+}
 
   function finishAndShowSuccess() {
     onLessonsChanged()
@@ -589,15 +653,76 @@ export default function EditClassModal({
 
             <h3>Quick Recall & Word Matching</h3>
             <p>
-              Quiz and Word Matching questions come from the shared question bank tagged to
-              this lesson — students see them automatically once questions exist for it.
-              There's no separate "generate" step for teachers right now.
+              Generate 10 random items from the existing question banks for this lesson.
+              The selected items will be saved for students to use.
             </p>
 
-            <div className="edit-class-footer-actions">
-              <button type="button" className="btn btn-outline btn-lg" onClick={() => setStep('choose')}>Back</button>
-              <button type="button" className="btn btn-blue btn-lg" onClick={finishAndShowSuccess}>Done</button>
+            {generationError && (
+              <div className="edit-class-generation-error" role="alert">
+                ⚠️ {generationError}
+              </div>
+            )}
+
+            {generationMessage && (
+              <div className="edit-class-generation-success">
+                {generationMessage}
+              </div>
+            )}
+
+            <div className="edit-class-generation-section">
+              <h4>Quick Recall</h4>
+              <p>
+                Randomly select 10 questions from the existing Quick Recall question bank.
+              </p>
+
+              <button
+                type="button"
+                className="btn btn-add"
+                disabled={loading || generatingActivity !== null}
+                onClick={() => generateActivitySet('quick_recall')}
+              >
+                {generatingActivity === 'quick_recall'
+                  ? 'Generating...'
+                  : 'Generate Quick Recall'}
+              </button>
             </div>
+
+                <div className="edit-class-generation-section">
+      <h4>Word Matching</h4>
+      <p>
+        Randomly select 10 words from the existing Word Matching question bank.
+      </p>
+
+      <button
+        type="button"
+        className="btn btn-add"
+        disabled={loading || generatingActivity !== null}
+        onClick={() => generateActivitySet('word_matching')}
+      >
+        {generatingActivity === 'word_matching'
+          ? 'Generating...'
+          : 'Generate Word Matching'}
+      </button>
+    </div>
+
+    {/* PUT IT HERE */}
+    <div className="edit-class-footer-actions">
+      <button
+        type="button"
+        className="btn btn-outline btn-lg"
+        onClick={() => setStep('choose')}
+      >
+        Back
+      </button>
+
+      <button
+        type="button"
+        className="btn btn-blue btn-lg"
+        onClick={finishAndShowSuccess}
+      >
+        Done
+      </button>
+    </div>
           </div>
         )}
       </div>
