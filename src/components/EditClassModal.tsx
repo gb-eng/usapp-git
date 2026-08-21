@@ -340,8 +340,9 @@ export default function EditClassModal({
   const table = activityType === 'quick_recall' ? 'quiz_bank' : 'word_bank'
 
   const { data: bankItems, error: bankError } = await supabase
-    .from(table)
-    .select('id')
+  .from(table)
+  .select('id')
+  .eq('lesson_id', lessonId)
 
   if (bankError) {
     setGenerationError(bankError.message)
