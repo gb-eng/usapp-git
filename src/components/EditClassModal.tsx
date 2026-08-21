@@ -112,6 +112,65 @@ export default function EditClassModal({
     setStep('form')
   }
 
+  async function createStarterActivityBanks(lessonId: string) {
+  const quizRows = Array.from({ length: 10 }, (_, i) => ({
+    lesson_id: lessonId,
+    question: `Quick Recall Question ${i + 1}`,
+    choice_a: 'Answer A',
+    choice_b: 'Answer B',
+    choice_c: 'Answer C',
+    choice_d: 'Answer D',
+    correct_answer: 'Answer A',
+    hint: 'Review this lesson topic.',
+    choices: [
+      'Answer A',
+      'Answer B',
+      'Answer C',
+      'Answer D'
+    ],
+    correct_index: 0,
+    explanation: 'Review the lesson content.',
+    filipino: null,
+  }))
+
+  const wordRows = Array.from({ length: 10 }, (_, i) => ({
+    lesson_id: lessonId,
+    word: `Vocabulary Word ${i + 1}`,
+    choice_a: 'Meaning A',
+    choice_b: 'Meaning B',
+    choice_c: 'Meaning C',
+    choice_d: 'Meaning D',
+    correct_answer: 'Meaning A',
+    filipino_meaning: null,
+    example_sentence: null,
+    choices: [
+      'Meaning A',
+      'Meaning B',
+      'Meaning C',
+      'Meaning D'
+    ],
+    correct_index: 0,
+    explanation: 'Review the lesson vocabulary.',
+    filipino: null,
+  }))
+
+  const { error: quizError } = await supabase
+    .from('quiz_bank')
+    .insert(quizRows)
+
+  if (quizError) {
+    console.error('Starter quiz creation failed:', quizError)
+  }
+
+  const { error: wordError } = await supabase
+    .from('word_bank')
+    .insert(wordRows)
+
+  if (wordError) {
+    console.error('Starter word creation failed:', wordError)
+  }
+}
+
   async function ensureLessonSaved(): Promise<string | null> {
     if (!topicTitle.trim() || !topicContent.trim()) {
       setError('Topic Title and Topic Content are required.')
@@ -149,7 +208,9 @@ export default function EditClassModal({
         return null
       }
       lessonId = data.id
-      setSavingLessonId(lessonId)
+setSavingLessonId(lessonId)
+
+await createStarterActivityBanks(data.id)
     }
 
     setLoading(false)
