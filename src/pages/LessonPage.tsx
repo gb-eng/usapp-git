@@ -56,16 +56,39 @@ export default function LessonPage() {
       }
       setLesson(data)
 
-      const [quizRes, wordRes, discRes, opRes, storyRes] = await Promise.all([
-        supabase.from('quiz_bank').select('id', { count: 'exact', head: true }).eq('lesson_id', lessonId),
-        supabase.from('word_bank').select('id', { count: 'exact', head: true }).eq('lesson_id', lessonId),
-        supabase.from('discussion_prompts').select('id, title').eq('lesson_id', lessonId),
-        supabase.from('opinion_prompts').select('id, title').eq('lesson_id', lessonId),
-        supabase.from('storytelling_sets').select('id, title').eq('lesson_id', lessonId),
-      ])
+      const [activityRes, discRes, opRes, storyRes] = await Promise.all([
+      supabase
+        .from('lesson_activity_sets')
+        .select('activity_type')
+        .eq('lesson_id', lessonId),
 
-      setHasQuiz((quizRes.count ?? 0) > 0)
-      setHasWordMatching((wordRes.count ?? 0) > 0)
+      supabase
+        .from('discussion_prompts')
+        .select('id, title')
+        .eq('lesson_id', lessonId),
+
+      supabase
+        .from('opinion_prompts')
+        .select('id, title')
+        .eq('lesson_id', lessonId),
+
+      supabase
+        .from('storytelling_sets')
+        .select('id, title')
+        .eq('lesson_id', lessonId),
+    ])
+
+      setHasQuiz(
+        activityRes.data?.some(
+          (a) => a.activity_type === 'quick_recall'
+        ) ?? false
+      )
+
+      setHasWordMatching(
+        activityRes.data?.some(
+          (a) => a.activity_type === 'word_matching'
+        ) ?? false
+      )
       setDiscussionPrompts(discRes.data ?? [])
       setOpinionPrompts(opRes.data ?? [])
       setStorySets(storyRes.data ?? [])
