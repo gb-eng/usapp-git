@@ -42,6 +42,7 @@ export default function QuickRecallActivity() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isGuest, setIsGuest] = useState(false)
+  const [isTeacherPreview, setIsTeacherPreview] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -54,9 +55,8 @@ export default function QuickRecallActivity() {
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
         if (profile?.role === 'teacher') {
-          setIsGuest(false)
-          // continue loading
-        }
+        setIsTeacherPreview(true)
+      }
       }
       setIsGuest(guest)
       if (!lessonId) return
@@ -85,6 +85,7 @@ export default function QuickRecallActivity() {
   const currentAnswer = answers[currentIndex]
 
   function handleSelect(index: number) {
+    if (isTeacherPreview) return
     if (currentAnswer) return
     setPendingSelection(index)
   }
@@ -96,13 +97,18 @@ export default function QuickRecallActivity() {
   }
 
   async function handleNext() {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex((i) => i + 1)
-      setPendingSelection(null)
-      return
-    }
-    await finishAttempt()
+  if (currentIndex < questions.length - 1) {
+    setCurrentIndex((i) => i + 1)
+    setPendingSelection(null)
+    return
   }
+
+  if (isTeacherPreview) {
+    return
+  }
+
+  await finishAttempt()
+}
 
   function handlePrevious() {
     if (currentIndex === 0) return
@@ -111,6 +117,10 @@ export default function QuickRecallActivity() {
   }
 
   async function finishAttempt() {
+        if (isTeacherPreview) {
+      setPhase('intro')
+      return
+    }
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     const score = Object.values(answers).filter((a) => a.isCorrect).length
@@ -207,53 +217,104 @@ export default function QuickRecallActivity() {
               {current.choices.map((choice, i) => {
                 const letter = String.fromCharCode(65 + i)
                 let stateClass = ''
-                if (submitted) {
-                  if (i === current.correct_index) stateClass = 'qr-option-correct'
-                  else if (i === currentAnswer.selectedIndex) stateClass = 'qr-option-incorrect'
-                } else if (pendingSelection === i) {
-                  stateClass = 'qr-option-selected'
+                if (isTeacherPreview) {
+                if (i === current.correct_index) {
+                  stateClass = 'qr-option-correct'
                 }
+              } else if (submitted) {
+                if (i === current.correct_index) {
+                  stateClass = 'qr-option-correct'
+                } else if (i === currentAnswer.selectedIndex) {
+                  stateClass = 'qr-option-incorrect'
+                }
+              } else if (pendingSelection === i) {
+                stateClass = 'qr-option-selected'
+              }
                 return (
                   <button
-                    key={i}
-                    type="button"
-                    className={`qr-option ${stateClass}`}
-                    onClick={() => handleSelect(i)}
-                    disabled={submitted}
-                  >
-                    {letter}. {choice}
-                  </button>
+                  key={i}
+                  type="button"
+                  className={`qr-option ${stateClass}`}
+                  onClick={() => handleSelect(i)}
+                  disabled={submitted || isTeacherPreview}
+                >
+                  {letter}. {choice}
+                </button>
                 )
               })}
             </div>
 
-            {!submitted && (
-              <button type="button" className="btn btn-blue btn-lg" disabled={pendingSelection == null} onClick={handleSubmit}>
-                Submit
-              </button>
-            )}
+            {!submitted && !isTeacherPreview && (
+            <button
+              type="button"
+              className="btn btn-blue btn-lg"
+              disabled={pendingSelection == null}
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          )}
 
-            {submitted && (
-              <>
-                <div className={currentAnswer.isCorrect ? 'qr-feedback qr-feedback-correct' : 'qr-feedback qr-feedback-incorrect'}>
-                  <p className="qr-feedback-title">
-                    {currentAnswer.isCorrect ? '✓ Correct!' : '✕ Not quite...'}
-                  </p>
-                  {currentAnswer.isCorrect ? (
-                    <p>{current.explanation}{current.filipino ? ` Filipino: ${current.filipino}.` : ''}</p>
-                  ) : (
-                    <p>
-                      The correct answer is {String.fromCharCode(65 + current.correct_index)}, "{current.choices[current.correct_index]}"
-                      {current.explanation ? ` — ${current.explanation}` : ''}
-                      {current.filipino ? `. Filipino: ${current.filipino}.` : '.'}
-                    </p>
-                  )}
-                </div>
-                <button type="button" className="btn btn-blue btn-lg" onClick={handleNext} disabled={saving}>
-                  {saving ? 'Saving...' : currentIndex < questions.length - 1 ? 'Next Question →' : 'See Results →'}
-                </button>
-              </>
-            )}
+            {isTeacherPreview && (
+  <>
+    <div className="qr-feedback qr-feedback-correct">
+      <p className="qr-feedback-title">
+        ✓ Correct Answer
+      </p>
+      <p>
+        {current.explanation ?? 'This is the correct answer for this question.'}
+        {current.filipino ? ` Filipino: ${current.filipino}.` : ''}
+      </p>
+    </div>
+
+    <button
+      type="button"
+      className="btn btn-blue btn-lg"
+      onClick={handleNext}
+      disabled={saving}
+    >
+      {currentIndex < questions.length - 1
+        ? 'Next Question →'
+        : 'Back to Lesson →'}
+    </button>
+  </>
+)}
+
+        {!isTeacherPreview && submitted && (
+          <>
+            <div className={currentAnswer.isCorrect ? 'qr-feedback qr-feedback-correct' : 'qr-feedback qr-feedback-incorrect'}>
+              <p className="qr-feedback-title">
+                {currentAnswer.isCorrect ? '✓ Correct!' : '✕ Not quite...'}
+              </p>
+
+              {currentAnswer.isCorrect ? (
+                <p>
+                  {current.explanation}
+                  {current.filipino ? ` Filipino: ${current.filipino}.` : ''}
+                </p>
+              ) : (
+                <p>
+                  The correct answer is {String.fromCharCode(65 + current.correct_index)}, "{current.choices[current.correct_index]}"
+                  {current.explanation ? ` — ${current.explanation}` : ''}
+                  {current.filipino ? `. Filipino: ${current.filipino}.` : '.'}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-blue btn-lg"
+              onClick={handleNext}
+              disabled={saving}
+            >
+              {saving
+                ? 'Saving...'
+                : currentIndex < questions.length - 1
+                  ? 'Next Question →'
+                  : 'See Results →'}
+            </button>
+          </>
+        )}
           </div>
         </main>
         <footer className="footer">© 2026 — Usapp</footer>
