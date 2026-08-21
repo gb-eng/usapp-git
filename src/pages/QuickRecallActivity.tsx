@@ -67,6 +67,8 @@ export default function QuickRecallActivity() {
     .maybeSingle(),
 ])
 
+console.log("ACTIVITY DEBUG", activityRes.data)
+
 if (!lessonRes.data) {
   setError('This lesson could not be found.')
   return
