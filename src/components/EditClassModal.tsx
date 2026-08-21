@@ -326,6 +326,13 @@ export default function EditClassModal({
   const lessonId = await ensureLessonSaved()
   if (!lessonId) return
 
+  console.log('GENERATE DEBUG:', {
+    activityType: activityType,
+    lessonId: lessonId,
+    selectedLessonId: selectedLessonId,
+    savingLessonId: savingLessonId,
+  })
+
   setGeneratingActivity(activityType)
   setGenerationMessage(null)
   setGenerationError(null)
