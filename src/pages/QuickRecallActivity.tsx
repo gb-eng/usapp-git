@@ -20,15 +20,6 @@ type QuizItem = {
 type Answer = { selectedIndex: number; isCorrect: boolean }
 type Lesson = { id: string; title: string }
 
-function shuffle<T>(arr: T[]): T[] {
-  const copy = [...arr]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[copy[i], copy[j]] = [copy[j], copy[i]]
-  }
-  return copy
-}
-
 export default function QuickRecallActivity() {
   const { lessonId } = useParams<{ lessonId: string }>()
   const navigate = useNavigate()
@@ -61,18 +52,44 @@ export default function QuickRecallActivity() {
       setIsGuest(guest)
       if (!lessonId) return
 
-      const [lessonRes, quizRes] = await Promise.all([
-        supabase.from('lessons').select('id, title').eq('id', lessonId).maybeSingle(),
-        supabase.from('quiz_bank').select('id, question, hint, choices, correct_index, explanation, filipino').eq('lesson_id', lessonId),
-      ])
+      const [lessonRes, activityRes] = await Promise.all([
+  supabase
+    .from('lessons')
+    .select('id, title')
+    .eq('id', lessonId)
+    .maybeSingle(),
 
-      if (!lessonRes.data) {
-        setError('This lesson could not be found.')
-        return
-      }
-      setLesson(lessonRes.data)
-      setQuestions(shuffle((quizRes.data as QuizItem[]) ?? []).slice(0, 10))
-      setPhase('intro')
+  supabase
+    .from('lesson_activity_sets')
+    .select('item_ids')
+    .eq('lesson_id', lessonId)
+    .eq('activity_type', 'quick_recall')
+    .maybeSingle(),
+])
+
+if (!lessonRes.data) {
+  setError('This lesson could not be found.')
+  return
+}
+
+if (!activityRes.data?.item_ids?.length) {
+  setError('Quick Recall has not been generated for this lesson yet.')
+  return
+}
+
+const { data: quizzes, error: quizzesError } = await supabase
+  .from('quiz_bank')
+  .select('id, question, hint, choices, correct_index, explanation, filipino')
+  .in('id', activityRes.data.item_ids)
+
+if (quizzesError) {
+  setError(quizzesError.message)
+  return
+}
+
+setLesson(lessonRes.data)
+setQuestions((quizzes ?? []) as QuizItem[])
+setPhase('intro')
     }
     load()
   }, [lessonId, navigate])
