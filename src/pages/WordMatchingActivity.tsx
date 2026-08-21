@@ -20,15 +20,6 @@ type Answer = { selectedIndex: number; isCorrect: boolean }
 
 type Lesson = { id: string; title: string }
 
-function shuffle<T>(arr: T[]): T[] {
-  const copy = [...arr]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[copy[i], copy[j]] = [copy[j], copy[i]]
-  }
-  return copy
-}
-
 export default function WordMatchingActivity() {
   const { lessonId } = useParams<{ lessonId: string }>()
   const navigate = useNavigate()
@@ -39,7 +30,6 @@ export default function WordMatchingActivity() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, Answer>>({})
   const [pendingSelection, setPendingSelection] = useState<number | null>(null)
-  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isGuest, setIsGuest] = useState(false)
   const [isTeacherPreview, setIsTeacherPreview] = useState(false)
@@ -61,18 +51,44 @@ export default function WordMatchingActivity() {
       setIsGuest(guest)
       if (!lessonId) return
 
-      const [lessonRes, wordsRes] = await Promise.all([
-        supabase.from('lessons').select('id, title').eq('id', lessonId).maybeSingle(),
-        supabase.from('word_bank').select('id, word, choices, correct_index, explanation, filipino').eq('lesson_id', lessonId),
-      ])
+      const [lessonRes, activityRes] = await Promise.all([
+  supabase
+    .from('lessons')
+    .select('id, title')
+    .eq('id', lessonId)
+    .maybeSingle(),
 
-      if (!lessonRes.data) {
-        setError('This lesson could not be found.')
-        return
-      }
-      setLesson(lessonRes.data)
-      setQuestions(shuffle((wordsRes.data as WordItem[]) ?? []).slice(0, 10))
-      setPhase('intro')
+  supabase
+    .from('lesson_activity_sets')
+    .select('item_ids')
+    .eq('lesson_id', lessonId)
+    .eq('activity_type', 'word_matching')
+    .maybeSingle(),
+])
+
+if (!lessonRes.data) {
+  setError('This lesson could not be found.')
+  return
+}
+
+if (!activityRes.data?.item_ids?.length) {
+  setError('Word Matching has not been generated for this lesson yet.')
+  return
+}
+
+const { data: words, error: wordsError } = await supabase
+  .from('word_bank')
+  .select('id, word, choices, correct_index, explanation, filipino')
+  .in('id', activityRes.data.item_ids)
+
+if (wordsError) {
+  setError(wordsError.message)
+  return
+}
+
+setLesson(lessonRes.data)
+setQuestions((words ?? []) as WordItem[])
+setPhase('intro')
     }
     load()
   }, [lessonId, navigate])
@@ -114,32 +130,33 @@ export default function WordMatchingActivity() {
 
 
   async function finishAttempt() {
-    if (isTeacherPreview) {
+  if (isTeacherPreview) {
     setPhase('intro')
     return
   }
-    setSaving(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    const score = Object.values(answers).filter((a) => a.isCorrect).length
-    const answerPayload = questions.map((q, i) => ({
-      word_id: q.id,
-      word: q.word,
-      selected_index: answers[i]?.selectedIndex ?? null,
-      is_correct: answers[i]?.isCorrect ?? false,
-    }))
 
-    if (user && lessonId) {
-      await supabase.from('word_attempts').insert({
-        lesson_id: lessonId,
-        student_id: user.id,
-        score,
-        answers: answerPayload,
-      })
-    }
+  const { data: { user } } = await supabase.auth.getUser()
 
-    setSaving(false)
-    setPhase('results')
+  const score = Object.values(answers).filter((a) => a.isCorrect).length
+
+  const answerPayload = questions.map((q, i) => ({
+    word_id: q.id,
+    word: q.word,
+    selected_index: answers[i]?.selectedIndex ?? null,
+    is_correct: answers[i]?.isCorrect ?? false,
+  }))
+
+  if (user && lessonId) {
+    await supabase.from('word_attempts').insert({
+      lesson_id: lessonId,
+      student_id: user.id,
+      score,
+      answers: answerPayload,
+    })
   }
+
+  setPhase('results')
+}
 
   if (phase === 'loading') {
     return (

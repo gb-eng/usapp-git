@@ -342,7 +342,6 @@ export default function EditClassModal({
   const { data: bankItems, error: bankError } = await supabase
     .from(table)
     .select('id')
-    .eq('lesson_id', lessonId)
 
   if (bankError) {
     setGenerationError(bankError.message)
