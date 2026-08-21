@@ -112,111 +112,59 @@ export default function EditClassModal({
     setStep('form')
   }
 
-  async function createStarterActivityBanks(lessonId: string) {
-  const quizRows = Array.from({ length: 10 }, (_, i) => ({
-    lesson_id: lessonId,
-    question: `Quick Recall Question ${i + 1}`,
-    choice_a: 'Answer A',
-    choice_b: 'Answer B',
-    choice_c: 'Answer C',
-    choice_d: 'Answer D',
-    correct_answer: 'Answer A',
-    hint: 'Review this lesson topic.',
-    choices: [
-      'Answer A',
-      'Answer B',
-      'Answer C',
-      'Answer D'
-    ],
-    correct_index: 0,
-    explanation: 'Review the lesson content.',
-    filipino: null,
-  }))
-
-  const wordRows = Array.from({ length: 10 }, (_, i) => ({
-    lesson_id: lessonId,
-    word: `Vocabulary Word ${i + 1}`,
-    choice_a: 'Meaning A',
-    choice_b: 'Meaning B',
-    choice_c: 'Meaning C',
-    choice_d: 'Meaning D',
-    correct_answer: 'Meaning A',
-    filipino_meaning: null,
-    example_sentence: null,
-    choices: [
-      'Meaning A',
-      'Meaning B',
-      'Meaning C',
-      'Meaning D'
-    ],
-    correct_index: 0,
-    explanation: 'Review the lesson vocabulary.',
-    filipino: null,
-  }))
-
-  const { error: quizError } = await supabase
-    .from('quiz_bank')
-    .insert(quizRows)
-
-  if (quizError) {
-    console.error('Starter quiz creation failed:', quizError)
-  }
-
-  const { error: wordError } = await supabase
-    .from('word_bank')
-    .insert(wordRows)
-
-  if (wordError) {
-    console.error('Starter word creation failed:', wordError)
-  }
-}
-
   async function ensureLessonSaved(): Promise<string | null> {
-    if (!topicTitle.trim() || !topicContent.trim()) {
-      setError('Topic Title and Topic Content are required.')
+  if (!topicTitle.trim() || !topicContent.trim()) {
+    setError('Topic Title and Topic Content are required.')
+    return null
+  }
+
+  setLoading(true)
+  setError(null)
+
+  let lessonId = savingLessonId ?? (selectedLessonId !== 'new' ? selectedLessonId : null)
+
+  if (lessonId) {
+    const { error: updateError } = await supabase
+      .from('lessons')
+      .update({
+        title: topicTitle.trim(),
+        body: topicContent.trim(),
+      })
+      .eq('id', lessonId)
+
+    if (updateError) {
+      setError(updateError.message)
+      setLoading(false)
       return null
     }
-    setLoading(true)
-    setError(null)
 
-    let lessonId = savingLessonId ?? (selectedLessonId !== 'new' ? selectedLessonId : null)
+  } else {
+    const { data, error: insertError } = await supabase
+      .from('lessons')
+      .insert({
+        class_id: classId,
+        title: topicTitle.trim(),
+        body: topicContent.trim(),
+        order_index: lessons.length,
+      })
+      .select('id')
+      .single()
 
-    if (lessonId) {
-      const { error: updateError } = await supabase
-        .from('lessons')
-        .update({ title: topicTitle.trim(), body: topicContent.trim() })
-        .eq('id', lessonId)
-      if (updateError) {
-        setError(updateError.message)
-        setLoading(false)
-        return null
-      }
-    } else {
-      const { data, error: insertError } = await supabase
-        .from('lessons')
-        .insert({
-          class_id: classId,
-          title: topicTitle.trim(),
-          body: topicContent.trim(),
-          order_index: lessons.length,
-        })
-        .select('id')
-        .single()
-      if (insertError || !data) {
-        setError(insertError?.message ?? 'Could not create the lesson.')
-        setLoading(false)
-        return null
-      }
-      lessonId = data.id
-setSavingLessonId(lessonId)
-
-await createStarterActivityBanks(data.id)
+    if (insertError || !data) {
+      setError(insertError?.message ?? 'Could not create the lesson.')
+      setLoading(false)
+      return null
     }
 
-    setLoading(false)
-    setTopicSaved(true)
-    return lessonId
+    lessonId = data.id
+    setSavingLessonId(data.id)
   }
+
+  setLoading(false)
+  setTopicSaved(true)
+
+  return lessonId
+}
 
   async function handleAddTopic() {
     const lessonId = await ensureLessonSaved()
@@ -400,10 +348,16 @@ await createStarterActivityBanks(data.id)
 
   const table = activityType === 'quick_recall' ? 'quiz_bank' : 'word_bank'
 
-  const { data: bankItems, error: bankError } = await supabase
+const { data: bankItems, error: bankError } = await supabase
   .from(table)
   .select('id')
-  .eq('lesson_id', lessonId)
+  .limit(100)
+
+  console.log("BANK DEBUG", {
+  table,
+  count: bankItems?.length,
+  items: bankItems
+})
 
   if (bankError) {
     setGenerationError(bankError.message)
