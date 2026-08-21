@@ -104,6 +104,7 @@ export default function QuickRecallActivity() {
   }
 
   if (isTeacherPreview) {
+    navigate(backHref)
     return
   }
 
