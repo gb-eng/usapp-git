@@ -42,6 +42,7 @@ export default function WordMatchingActivity() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isGuest, setIsGuest] = useState(false)
+  const [isTeacherPreview, setIsTeacherPreview] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -54,9 +55,8 @@ export default function WordMatchingActivity() {
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
         if (profile?.role === 'teacher') {
-          navigate('/teacher')
-          return
-        }
+        setIsTeacherPreview(true)
+      }
       }
       setIsGuest(guest)
       if (!lessonId) return
@@ -85,6 +85,7 @@ export default function WordMatchingActivity() {
   const currentAnswer = answers[currentIndex]
 
   function handleSelect(index: number) {
+    if (isTeacherPreview) return
     if (currentAnswer) return
     setPendingSelection(index)
   }
@@ -96,13 +97,14 @@ export default function WordMatchingActivity() {
   }
 
   async function handleNext() {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex((i) => i + 1)
-      setPendingSelection(null)
-      return
-    }
-    await finishAttempt()
+  if (currentIndex < questions.length - 1) {
+    setCurrentIndex((i) => i + 1)
+    setPendingSelection(null)
+    return
   }
+
+  await finishAttempt()
+}
 
   function handlePrevious() {
     if (currentIndex === 0) return
@@ -110,7 +112,12 @@ export default function WordMatchingActivity() {
     setPendingSelection(null)
   }
 
+
   async function finishAttempt() {
+    if (isTeacherPreview) {
+    setPhase('intro')
+    return
+  }
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     const score = Object.values(answers).filter((a) => a.isCorrect).length
@@ -204,9 +211,16 @@ export default function WordMatchingActivity() {
               {current.choices.map((choice, i) => {
                 const letter = String.fromCharCode(65 + i)
                 let stateClass = ''
-                if (submitted) {
-                  if (i === current.correct_index) stateClass = 'wm-option-correct'
-                  else if (i === currentAnswer.selectedIndex) stateClass = 'wm-option-incorrect'
+                if (isTeacherPreview) {
+                  if (i === current.correct_index) {
+                    stateClass = 'wm-option-correct'
+                  }
+                } else if (submitted) {
+                  if (i === current.correct_index) {
+                    stateClass = 'wm-option-correct'
+                  } else if (i === currentAnswer.selectedIndex) {
+                    stateClass = 'wm-option-incorrect'
+                  }
                 } else if (pendingSelection === i) {
                   stateClass = 'wm-option-selected'
                 }
@@ -216,7 +230,7 @@ export default function WordMatchingActivity() {
                     type="button"
                     className={`wm-option ${stateClass}`}
                     onClick={() => handleSelect(i)}
-                    disabled={submitted}
+                    disabled={submitted || isTeacherPreview}
                   >
                     {letter}. {choice}
                   </button>
@@ -224,27 +238,39 @@ export default function WordMatchingActivity() {
               })}
             </div>
 
-            {!submitted && (
+            {!submitted && !isTeacherPreview && (
               <button type="button" className="btn btn-blue btn-lg" disabled={pendingSelection == null} onClick={handleSubmit}>
                 Submit
               </button>
             )}
 
-            {submitted && (
+            {isTeacherPreview && (
               <>
-                <div className={currentAnswer.isCorrect ? 'wm-feedback wm-feedback-correct' : 'wm-feedback wm-feedback-incorrect'}>
+                <div className="wm-feedback wm-feedback-correct">
                   <p className="wm-feedback-title">
-                    {currentAnswer.isCorrect ? '✓ Correct!' : '✕ Not quite...'}
+                    ✓ Correct Answer
                   </p>
+
                   <p>
-                    {currentAnswer.isCorrect
-                      ? current.explanation
-                      : `The correct answer is ${String.fromCharCode(65 + current.correct_index)}, "${current.choices[current.correct_index]}."`}
+                    {current.explanation ?? 'This is the correct answer for this word.'}
+                    {current.filipino ? ` Filipino: ${current.filipino}.` : ''}
                   </p>
-                  {current.filipino && <p><strong>Filipino:</strong> {current.filipino}</p>}
                 </div>
-                <button type="button" className="btn btn-blue btn-lg" onClick={handleNext} disabled={saving}>
-                  {saving ? 'Saving...' : currentIndex < questions.length - 1 ? 'Next Question →' : 'See Results →'}
+
+                <button
+                  type="button"
+                  className="btn btn-blue btn-lg"
+                  onClick={() => {
+                    if (currentIndex < questions.length - 1) {
+                      handleNext()
+                    } else {
+                      navigate(backHref)
+                    }
+                  }}
+                >
+                  {currentIndex < questions.length - 1
+                    ? 'Next Word →'
+                    : 'Back to Lesson →'}
                 </button>
               </>
             )}
@@ -263,7 +289,7 @@ export default function WordMatchingActivity() {
         <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Word Matching" backHref={backHref} />
         <div className="activity-body activity-results">
           <span className="activity-results-icon" aria-hidden="true">🎉</span>
-          <h2>Quiz complete!</h2>
+          <h2>Word Matching complete!</h2>
           <p className="activity-results-score">{score}/{questions.length}</p>
           <p>Great effort! You can now review your answers below.</p>
 
