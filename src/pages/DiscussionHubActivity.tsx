@@ -229,13 +229,19 @@ export default function DiscussionHubActivity() {
             <div className="dh-record-box">
               <p className="dh-submitted-label">Your response</p>
               <AudioBar src={mySubmission.audio_url} />
-              <label className="os-response-card-header"><span>Teacher comments</span></label>
-              <textarea rows={3} readOnly placeholder="Comments here..." value={mySubmission.comment ?? ''} />
-              {mySubmission.status === 'reviewed' && mySubmission.rating != null ? (
-                <span className="story-rating-pill">{{ 1: 'Needs Work', 2: 'Good', 3: 'Excellent' }[mySubmission.rating]}</span>
-              ) : (
-                <p className="dashboard-muted">Awaiting teacher review.</p>
+              {mySubmission.comment?.trim() && (
+                <>
+                  <label className="os-response-card-header"><span>Teacher comments</span></label>
+                  <textarea rows={3} readOnly value={mySubmission.comment} />
+                </>
               )}
+              <div style={{ textAlign: 'left' }}>
+                {mySubmission.status === 'reviewed' && mySubmission.rating != null ? (
+                  <span className="story-rating-pill">{{ 1: 'Needs Work', 2: 'Good', 3: 'Excellent' }[mySubmission.rating]}</span>
+                ) : (
+                  <p className="dashboard-muted">Awaiting teacher review.</p>
+                )}
+              </div>
             </div>
           ) : (
             <div className="dh-record-box">
