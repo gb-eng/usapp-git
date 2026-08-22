@@ -8,7 +8,7 @@ import './OpinionSharingActivity.css'
 
 type Lesson = { id: string; title: string }
 type Prompt = { id: string; lesson_id: string; title: string }
-type MySubmission = { content_text: string; created_at: string }
+type MySubmission = { content_text: string; created_at: string; rating: number | null; comment: string | null; status: string }
 type ClassResponse = { id: string; student_id: string; display_name: string; response_text: string; created_at: string }
 
 const PAGE_SIZE = 3
@@ -53,7 +53,7 @@ export default function OpinionSharingActivity() {
       const [lessonRes, promptRes, myRes, classRes] = await Promise.all([
         supabase.from('lessons').select('id, title').eq('id', lessonId).maybeSingle(),
         supabase.from('opinion_prompts').select('id, lesson_id, title').eq('id', promptId).maybeSingle(),
-        supabase.from('opinion_responses').select('content_text, created_at').eq('prompt_id', promptId).eq('student_id', user.id).maybeSingle(),
+        supabase.from('opinion_responses').select('content_text, created_at, rating, comment, status').eq('prompt_id', promptId).eq('student_id', user.id).maybeSingle(),
         supabase.rpc('get_opinion_responses', { target_prompt_id: promptId }),
       ])
 
@@ -97,7 +97,7 @@ export default function OpinionSharingActivity() {
         content_text: draft.trim(),
         status: 'for_checking',
       })
-      .select('content_text, created_at')
+      .select('content_text, created_at, rating, comment, status')
       .single()
 
     setSubmitting(false)
@@ -164,6 +164,13 @@ export default function OpinionSharingActivity() {
                 <span>{formatDateTime(mySubmission.created_at)}</span>
               </div>
               <p>{mySubmission.content_text}</p>
+              <label className="os-response-card-header"><span>Teacher comments</span></label>
+              <textarea rows={3} readOnly placeholder="Comments here..." value={mySubmission.comment ?? ''} />
+              {mySubmission.status === 'reviewed' && mySubmission.rating != null ? (
+                <span className="story-rating-pill">{{ 1: 'Needs Work', 2: 'Good', 3: 'Excellent' }[mySubmission.rating]}</span>
+              ) : (
+                <p className="dashboard-muted">Awaiting teacher review.</p>
+              )}
             </div>
           ) : (
             <form onSubmit={handleSubmit}>

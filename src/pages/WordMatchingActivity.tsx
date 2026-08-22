@@ -94,7 +94,6 @@ if (wordsError) {
   return
 }
 
-setLesson(lessonRes.data)
 const orderedWords: WordItem[] = (activityRes.data.item_ids as string[])
   .map((id: string) => (words ?? []).find((w: WordItem) => w.id === id))
   .filter((w): w is WordItem => Boolean(w))
@@ -102,11 +101,9 @@ const orderedWords: WordItem[] = (activityRes.data.item_ids as string[])
 setLesson(lessonRes.data)
 setQuestions(orderedWords)
 setPhase('intro')
-setPhase('intro')
     }
     load()
   }, [lessonId, navigate])
-  
 
   const headerProps = isGuest
     ? { showLogin: false, showLogout: false, showLeaderboards: false, showMyProfile: false, homeHref: '/guest' }
@@ -274,6 +271,32 @@ setPhase('intro')
               <button type="button" className="btn btn-blue btn-lg" disabled={pendingSelection == null} onClick={handleSubmit}>
                 Submit
               </button>
+            )}
+
+            {!isTeacherPreview && submitted && (
+              <>
+                <div className={currentAnswer.isCorrect ? 'wm-feedback wm-feedback-correct' : 'wm-feedback wm-feedback-incorrect'}>
+                  <p className="wm-feedback-title">
+                    {currentAnswer.isCorrect ? '✓ Correct!' : '✕ Not quite...'}
+                  </p>
+                  {currentAnswer.isCorrect ? (
+                    <p>
+                      {current.explanation}
+                      {current.filipino ? ` Filipino: ${current.filipino}.` : ''}
+                    </p>
+                  ) : (
+                    <p>
+                      The correct answer is {String.fromCharCode(65 + current.correct_index)}, "{current.choices[current.correct_index]}"
+                      {current.explanation ? ` — ${current.explanation}` : ''}
+                      {current.filipino ? `. Filipino: ${current.filipino}.` : '.'}
+                    </p>
+                  )}
+                </div>
+
+                <button type="button" className="btn btn-blue btn-lg" onClick={handleNext}>
+                  {currentIndex < questions.length - 1 ? 'Next Word →' : 'See Results →'}
+                </button>
+              </>
             )}
 
             {isTeacherPreview && (

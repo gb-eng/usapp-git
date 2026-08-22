@@ -26,7 +26,7 @@ type WordAttempt = WithProfile<{ id: string; lesson_id: string; student_id: stri
 type Prompt = { id: string; lesson_id: string; title: string }
 type StorySet = { id: string; lesson_id: string; title: string; photo_urls: string[] }
 type DiscussionResponse = WithProfile<{ id: string; lesson_id: string; prompt_id: string; student_id: string; rating: number | null; comment: string | null; audio_url: string | null }>
-type OpinionResponse = WithProfile<{ id: string; lesson_id: string; prompt_id: string; student_id: string; rating: number | null; comment: string | null; response_text: string | null }>
+type OpinionResponse = WithProfile<{ id: string; lesson_id: string; prompt_id: string; student_id: string; rating: number | null; comment: string | null; content_text: string | null}>
 type StorySubmission = WithProfile<{ id: string; lesson_id: string; storytelling_set_id: string; student_id: string; rating: number | null; comment: string | null; drive_link: string | null }>
 
 type Tab = 'lessons' | 'reviews' | 'scores'
@@ -127,7 +127,7 @@ export default function TeacherDashboard() {
       supabase.from('opinion_prompts').select('id, lesson_id, title').in('lesson_id', lessonIds),
       supabase.from('storytelling_sets').select('id, lesson_id, title, photo_urls').in('lesson_id', lessonIds),
       supabase.from('discussion_responses').select('id, lesson_id, prompt_id, student_id, rating, comment, audio_url, profiles(full_name)').in('lesson_id', lessonIds),
-      supabase.from('opinion_responses').select('id, lesson_id, prompt_id, student_id, rating, comment, response_text, profiles(full_name)').in('lesson_id', lessonIds),
+      supabase.from('opinion_responses').select('id, lesson_id, prompt_id, student_id, rating, comment, content_text, profiles(full_name)').in('lesson_id', lessonIds),
       supabase.from('storytelling_submissions').select('id, lesson_id, storytelling_set_id, student_id, rating, comment, drive_link, profiles(full_name)').in('lesson_id', lessonIds),
       supabase.rpc('get_teacher_class_scores'),
     ])
@@ -547,7 +547,7 @@ export default function TeacherDashboard() {
           studentInitials={initialsOf(activeReview.item.profiles?.full_name)}
           lessonTitle={activeReview.lessonTitle}
           prompt={activeReview.prompt}
-          responseText={activeReview.item.response_text ?? undefined}
+          responseText={activeReview.item.content_text ?? undefined}
           onClose={() => setActiveReview(null)}
           onConfirm={handleConfirmReview}
           loading={savingReview}

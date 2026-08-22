@@ -10,6 +10,7 @@ import './DiscussionHubActivity.css'
 type Lesson = { id: string; title: string }
 type Prompt = { id: string; lesson_id: string; title: string }
 type ClassResponse = { id: string; student_id: string; display_name: string; audio_url: string; created_at: string }
+type MySubmission = { audio_url: string; rating: number | null; comment: string | null; status: string }
 
 const PAGE_SIZE = 3
 const MAX_RECORDING_SECONDS = 180
@@ -22,7 +23,7 @@ export default function DiscussionHubActivity() {
   const [loading, setLoading] = useState(true)
   const [lesson, setLesson] = useState<Lesson | null>(null)
   const [prompt, setPrompt] = useState<Prompt | null>(null)
-  const [mySubmission, setMySubmission] = useState<{ audio_url: string } | null>(null)
+  const [mySubmission, setMySubmission] = useState<MySubmission | null>(null)
   const [myUserId, setMyUserId] = useState<string | null>(null)
   const [isTeacher, setIsTeacher] = useState(false)
   const [classResponses, setClassResponses] = useState<ClassResponse[]>([])
@@ -55,7 +56,7 @@ export default function DiscussionHubActivity() {
       const [lessonRes, promptRes, myRes, classRes] = await Promise.all([
         supabase.from('lessons').select('id, title').eq('id', lessonId).maybeSingle(),
         supabase.from('discussion_prompts').select('id, lesson_id, title').eq('id', promptId).maybeSingle(),
-        supabase.from('discussion_responses').select('audio_url').eq('prompt_id', promptId).eq('student_id', user.id).maybeSingle(),
+        supabase.from('discussion_responses').select('audio_url, rating, comment, status').eq('prompt_id', promptId).eq('student_id', user.id).maybeSingle(),
         supabase.rpc('get_discussion_responses', { target_prompt_id: promptId }),
       ])
 
@@ -174,7 +175,7 @@ export default function DiscussionHubActivity() {
       return
     }
 
-    setMySubmission({ audio_url: audioUrl })
+    setMySubmission({ audio_url: audioUrl, rating: null, comment: null, status: 'for_checking' })
     setClassResponses((prev) => [...prev, { id: `me-${Date.now()}`, student_id: user.id, display_name: 'You', audio_url: audioUrl, created_at: new Date().toISOString() }])
     setRecordState('idle')
     setRecordedBlob(null)
@@ -228,6 +229,13 @@ export default function DiscussionHubActivity() {
             <div className="dh-record-box">
               <p className="dh-submitted-label">Your response</p>
               <AudioBar src={mySubmission.audio_url} />
+              <label className="os-response-card-header"><span>Teacher comments</span></label>
+              <textarea rows={3} readOnly placeholder="Comments here..." value={mySubmission.comment ?? ''} />
+              {mySubmission.status === 'reviewed' && mySubmission.rating != null ? (
+                <span className="story-rating-pill">{{ 1: 'Needs Work', 2: 'Good', 3: 'Excellent' }[mySubmission.rating]}</span>
+              ) : (
+                <p className="dashboard-muted">Awaiting teacher review.</p>
+              )}
             </div>
           ) : (
             <div className="dh-record-box">
