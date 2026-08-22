@@ -96,8 +96,12 @@ if (quizzesError) {
   return
 }
 
+const orderedQuestions: QuizItem[] = (activityRes.data.item_ids as string[])
+  .map((id: string) => (quizzes ?? []).find((q: QuizItem) => q.id === id))
+  .filter((q): q is QuizItem => Boolean(q))
+
 setLesson(lessonRes.data)
-setQuestions((quizzes ?? []) as QuizItem[])
+setQuestions(orderedQuestions)
 setPhase('intro')
     }
     load()

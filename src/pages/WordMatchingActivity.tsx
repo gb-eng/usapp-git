@@ -95,11 +95,18 @@ if (wordsError) {
 }
 
 setLesson(lessonRes.data)
-setQuestions((words ?? []) as WordItem[])
+const orderedWords: WordItem[] = (activityRes.data.item_ids as string[])
+  .map((id: string) => (words ?? []).find((w: WordItem) => w.id === id))
+  .filter((w): w is WordItem => Boolean(w))
+
+setLesson(lessonRes.data)
+setQuestions(orderedWords)
+setPhase('intro')
 setPhase('intro')
     }
     load()
   }, [lessonId, navigate])
+  
 
   const headerProps = isGuest
     ? { showLogin: false, showLogout: false, showLeaderboards: false, showMyProfile: false, homeHref: '/guest' }
