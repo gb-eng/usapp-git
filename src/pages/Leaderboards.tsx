@@ -130,7 +130,7 @@ function PodiumSpot({
       <span className="podium-medal" aria-hidden="true">{medal}</span>
       <span className="podium-avatar" style={{ background: color }}>{initials}</span>
       <span className="podium-name">{entry.display_name}</span>
-      <div className="podium-block">{entry.points}</div>
+      <div className="podium-block">{entry.points} pts</div>
     </div>
   )
 }

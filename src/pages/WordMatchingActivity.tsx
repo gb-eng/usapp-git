@@ -24,9 +24,10 @@ export default function WordMatchingActivity() {
   const { lessonId } = useParams<{ lessonId: string }>()
   const navigate = useNavigate()
 
-  const [phase, setPhase] = useState<'loading' | 'intro' | 'question' | 'results'>('loading')
+  const [phase, setPhase] = useState<'loading' | 'intro' | 'question' | 'results' | 'completed'>('loading')
   const [lesson, setLesson] = useState<Lesson | null>(null)
   const [questions, setQuestions] = useState<WordItem[]>([])
+  const [pastScore, setPastScore] = useState<number | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, Answer>>({})
   const [pendingSelection, setPendingSelection] = useState<number | null>(null)
@@ -42,10 +43,12 @@ export default function WordMatchingActivity() {
         navigate('/login')
         return
       }
+      let teacherLocal = false
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
         if (profile?.role === 'teacher') {
         setIsTeacherPreview(true)
+        teacherLocal = true
       }
       }
       setIsGuest(guest)
@@ -97,6 +100,23 @@ if (wordsError) {
 const orderedWords: WordItem[] = (activityRes.data.item_ids as string[])
   .map((id: string) => (words ?? []).find((w: WordItem) => w.id === id))
   .filter((w): w is WordItem => Boolean(w))
+
+if (user && !teacherLocal && !guest) {
+  const { data: existingAttempts } = await supabase
+    .from('word_attempts')
+    .select('score')
+    .eq('lesson_id', lessonId)
+    .eq('student_id', user.id)
+    .limit(1)
+
+  if (existingAttempts && existingAttempts.length > 0) {
+    setLesson(lessonRes.data)
+    setQuestions(orderedWords)
+    setPastScore(existingAttempts[0].score)
+    setPhase('completed')
+    return
+  }
+}
 
 setLesson(lessonRes.data)
 setQuestions(orderedWords)
@@ -189,6 +209,27 @@ setPhase('intro')
   }
 
   const backHref = isGuest ? '/guest' : `/lesson/${lesson.id}`
+
+  if (phase === 'completed') {
+    return (
+      <div>
+        <Header {...headerProps} />
+        <main className="activity-main">
+          <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Word Matching" backHref={backHref} />
+          <div className="activity-body activity-results">
+            <span className="activity-results-icon" aria-hidden="true">✅</span>
+            <h2>You've already completed this activity</h2>
+            <p className="activity-results-score">{pastScore}/{questions.length}</p>
+            <p>Each Word Matching activity can only be taken once.</p>
+            <button type="button" className="btn btn-blue btn-lg" onClick={() => navigate(backHref)}>
+              ← Back
+            </button>
+          </div>
+        </main>
+        <footer className="footer">© 2026 — Usapp</footer>
+      </div>
+    )
+  }
 
   if (phase === 'intro') {
     return (
