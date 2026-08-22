@@ -323,13 +323,12 @@ setPhase('intro')
                   {currentAnswer.isCorrect ? (
                     <p>
                       {current.explanation}
-                      {current.filipino ? ` Filipino: ${current.filipino}.` : ''}
                     </p>
                   ) : (
                     <p>
                       The correct answer is {String.fromCharCode(65 + current.correct_index)}, "{current.choices[current.correct_index]}"
                       {current.explanation ? ` — ${current.explanation}` : ''}
-                      {current.filipino ? `. Filipino: ${current.filipino}.` : '.'}
+                      .
                     </p>
                   )}
                 </div>
@@ -349,7 +348,6 @@ setPhase('intro')
 
                   <p>
                     {current.explanation ?? 'This is the correct answer for this word.'}
-                    {current.filipino ? ` Filipino: ${current.filipino}.` : ''}
                   </p>
                 </div>
 

@@ -165,9 +165,13 @@ export default function StorytellingActivity() {
                 <>
                   <div className="story-hint">Read each picture first before you begin.</div>
                   <p className="story-instructions">
-                    Instructions: When you're ready, record yourself telling this story out loud in
-                    English, upload it to your own Google Drive, and paste the link below. Video must
-                    be limited to only 1-2 minutes and less than 5MB.
+                    Look closely at the three pictures — they show a short story in order. When
+                    you're ready, record yourself telling that story out loud in your own words,
+                    mixing English and Filipino naturally (Taglish) the way you normally would.
+                  </p>
+                  <p className="story-instructions">
+                    Then upload your recording to your own Google Drive, and paste the link below.
+                    Video must be limited to only 1-2 minutes and less than 5MB.
                   </p>
 
                   <form onSubmit={handleSubmit}>
