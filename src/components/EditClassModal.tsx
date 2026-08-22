@@ -373,7 +373,16 @@ const { data: bankItems, error: bankError } = await supabase
     return
   }
 
-  const shuffled = [...bankItems].sort(() => Math.random() - 0.5)
+  function shuffle<T>(array: T[]): T[] {
+    const result = [...array]
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[result[i], result[j]] = [result[j], result[i]]
+    }
+    return result
+  }
+
+  const shuffled = shuffle(bankItems)
   const selectedIds = shuffled.slice(0, 10).map((item) => item.id)
 
   const { error: saveError } = await supabase
@@ -402,7 +411,7 @@ const { data: bankItems, error: bankError } = await supabase
   )
 
   setGeneratingActivity(null)
-}
+  }
 
   function finishAndShowSuccess() {
     onLessonsChanged()
