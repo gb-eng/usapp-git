@@ -47,63 +47,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-.btn-leave {
-  background: #E74C3C;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.btn-leave:hover {
-  background: #D33F2F;
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-1px);
-}
-
-.btn-leave:active {
-  transform: translateY(0) scale(0.97);
-}
-
-.tab-toggle {
-  display: flex;
-  margin: 20px 0 0;
-}
-
-.tab-btn {
-  border: none;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  background: var(--color-yellow-bg);
-  color: var(--color-yellow-text);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  transition: background-color var(--transition-fast);
-}
-
-.tab-btn:hover {
-  background: var(--color-yellow-bg-hover);
-}
-
-.tab-btn-active-blue {
-  background: var(--color-blue);
-  color: #fff;
-}
-
-.tab-btn-active-blue:hover {
-  background: var(--color-blue-hover);
-}
-
-.tab-btn-active-yellow {
-  background: var(--color-yellow-bg);
-  color: var(--color-yellow-text);
-}
-
 .section-title {
   font-size: 16px;
   margin: 20px 0 12px;

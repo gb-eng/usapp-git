@@ -9,12 +9,13 @@
 }
 
 .teacher-tab-row {
-  margin: 20px 0 0;
+  margin: 0;
 }
 
-.tab-btn-active-blue {
-  background: var(--color-blue);
-  color: #fff;
+.teacher-summary-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .tab-badge {

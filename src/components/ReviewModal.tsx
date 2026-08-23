@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FolderOpen } from 'lucide-react'
 import './Modal.css'
 import './ReviewModal.css'
 
@@ -10,11 +11,8 @@ interface ReviewModalProps {
   studentInitials: string
   lessonTitle: string
   prompt: string
-  // discussion
   audioUrl?: string
-  // opinion
   responseText?: string
-  // storytelling
   storyTitle?: string
   photoUrls?: string[]
   videoUrl?: string
@@ -107,7 +105,7 @@ export default function ReviewModal({
           <div className="review-response-box review-drive-box">
             {videoUrl ? (
               <>
-                <span className="review-drive-icon" aria-hidden="true">📁</span>
+                <FolderOpen className="review-drive-icon" size={28} aria-hidden="true" />
                 <p>Video submitted via Google Drive</p>
                 <a href={videoUrl} target="_blank" rel="noreferrer" className="btn btn-blue">
                   Open in Drive ↗

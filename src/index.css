@@ -7,6 +7,9 @@
   --color-yellow-bg: #F5D98B;
   --color-yellow-bg-hover: #EFCB69;
   --color-yellow-text: #8B6C1F;
+  --color-red: #C0392B;
+  --color-red-hover: #A93226;
+  --color-red-text: #ffffff;
   --color-bg: #FAFAFA;
   --color-card-bg: #ffffff;
   --color-border: #E0E0E0;
@@ -125,8 +128,70 @@ a {
   transform: scale(0.97);
 }
 
+.btn-leave {
+  background: var(--color-red);
+  color: var(--color-red-text);
+  box-shadow: 0 1px 2px rgba(192, 57, 43, 0.25);
+}
+.btn-leave:hover:not(:disabled) {
+  background: var(--color-red-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.btn-leave:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 1px 2px rgba(192, 57, 43, 0.25);
+}
+
 .btn-sm { padding: 8px 20px; }
 .btn-lg { padding: 14px 24px; font-size: 15px; width: 100%; }
+
+/* ---- Tabs ---- */
+/* Global standard for TeacherDashboard and StudentDashboard. Previously
+   defined only (and inconsistently) in StudentDashboard.css, and not at
+   all in TeacherDashboard.css / index.css -- see project notes. The old
+   version also had a bug where the active-yellow state was visually
+   identical to the default/unselected state. */
+.tab-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin: 20px 0 20px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.tab-btn:hover:not(.tab-btn-active-blue):not(.tab-btn-active-yellow) {
+  color: var(--color-text);
+}
+
+.tab-btn-active-blue {
+  background: var(--color-blue);
+  color: var(--color-blue-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-btn-active-yellow {
+  background: var(--color-yellow-bg);
+  color: var(--color-yellow-text);
+  box-shadow: var(--shadow-sm);
+}
 
 /* ---- Form fields ---- */
 /* Nothing styled these before beyond default browser chrome. */

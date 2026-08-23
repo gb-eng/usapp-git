@@ -89,7 +89,7 @@
 }
 
 .review-drive-icon {
-  font-size: 28px;
+  color: var(--color-blue);
 }
 
 .review-rating-section textarea {
