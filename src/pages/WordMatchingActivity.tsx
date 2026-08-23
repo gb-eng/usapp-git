@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { Puzzle, PartyPopper, CheckCircle2 } from 'lucide-react'
 import Header from '../components/Header'
 import ActivityHeader from '../components/ActivityHeader'
 import { supabase } from '../lib/supabaseClient'
@@ -217,7 +218,7 @@ setPhase('intro')
         <main className="activity-main">
           <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Word Matching" backHref={backHref} />
           <div className="activity-body activity-results">
-            <span className="activity-results-icon" aria-hidden="true">✅</span>
+            <CheckCircle2 className="activity-results-icon" size={48} aria-hidden="true" />
             <h2>You've already completed this activity</h2>
             <p className="activity-results-score">{pastScore}/{questions.length}</p>
             <p>Each Word Matching activity can only be taken once.</p>
@@ -238,7 +239,7 @@ setPhase('intro')
         <main className="activity-main">
           <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Word Matching" backHref={backHref} />
           <div className="activity-body activity-intro">
-            <span className="activity-intro-icon" aria-hidden="true">🔤</span>
+            <Puzzle className="activity-intro-icon" size={48} aria-hidden="true" />
             <h2>Word Matching</h2>
             <p>{questions.length} words to check your vocabulary from this lesson</p>
             <p className="activity-intro-filipino">Piliin ang tamang kahulugan ng bawat salita.</p>
@@ -270,7 +271,7 @@ setPhase('intro')
           />
           <div className="activity-body">
             <div className="wm-prompt">
-              <span className="wm-prompt-icon" aria-hidden="true">🔤</span>
+              <Puzzle className="wm-prompt-icon" size={28} aria-hidden="true" />
               <div>
                 <p>Match this word to its meaning:</p>
                 <h2>{current.word}</h2>
@@ -382,7 +383,7 @@ setPhase('intro')
       <main className="activity-main">
         <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Word Matching" backHref={backHref} />
         <div className="activity-body activity-results">
-          <span className="activity-results-icon" aria-hidden="true">🎉</span>
+          <PartyPopper className="activity-results-icon" size={48} aria-hidden="true" />
           <h2>Word Matching complete!</h2>
           <p className="activity-results-score">{score}/{questions.length}</p>
           <p>Great effort! You can now review your answers below.</p>

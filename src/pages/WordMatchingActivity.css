@@ -6,7 +6,8 @@
 }
 
 .wm-prompt-icon {
-  font-size: 32px;
+  flex-shrink: 0;
+  color: var(--color-blue);
 }
 
 .wm-prompt p {
