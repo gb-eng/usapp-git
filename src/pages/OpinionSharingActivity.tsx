@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { MessagesSquare } from 'lucide-react'
 import Header from '../components/Header'
 import ActivityHeader from '../components/ActivityHeader'
 import { supabase } from '../lib/supabaseClient'
@@ -148,7 +149,7 @@ export default function OpinionSharingActivity() {
         <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Opinion Sharing" backHref={backHref} />
         <div className="activity-body">
           <div className="os-prompt">
-            <span className="os-prompt-icon" aria-hidden="true">🗣️</span>
+            <MessagesSquare className="os-prompt-icon" size={28} aria-hidden="true" />
             <div>
               <h2>"{prompt.title}"</h2>
               <p className="os-instructions">Ang iyong sagot ay dapat binubuo ng hindi bababa sa 3 hanggang 5 pangungusap.</p>
@@ -181,10 +182,6 @@ export default function OpinionSharingActivity() {
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="os-editor">
-                <div className="os-toolbar" aria-hidden="true">
-                  <span>💬</span><span><strong>B</strong></span><span><em>I</em></span><span>🔗</span><span>"</span>
-                  <span>{'</>'}</span><span>⬆</span><span>☰</span><span>☰</span><span>☺</span><span>📅</span><span>⚙</span>
-                </div>
                 <textarea
                   rows={8}
                   placeholder="Type your opinion here."

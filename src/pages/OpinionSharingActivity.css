@@ -6,8 +6,8 @@
 }
 
 .os-prompt-icon {
-  font-size: 32px;
   flex-shrink: 0;
+  color: var(--color-blue);
 }
 
 .os-prompt h2 {
@@ -32,15 +32,6 @@
 .os-editor:focus-within {
   border-color: var(--color-blue);
   box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
-}
-
-.os-toolbar {
-  display: flex;
-  gap: 16px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-  font-size: 14px;
 }
 
 .os-editor textarea {

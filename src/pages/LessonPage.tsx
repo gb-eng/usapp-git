@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import Header from '../components/Header'
 import { supabase } from '../lib/supabaseClient'
+import { Brain, Puzzle, Clapperboard, MessagesSquare, MessageCircle } from 'lucide-react'
 import './LessonPage.css'
 
 type Lesson = {
@@ -127,27 +128,27 @@ export default function LessonPage() {
               <div className="lesson-activity-list">
                 {hasQuiz && (
                   <button type="button" className="lesson-activity-btn" onClick={() => navigate(`/lesson/${lesson.id}/quick-recall`)}>
-                    🧠 Quick Recall Quiz
+                    <Brain size={20} className="lesson-activity-icon" aria-hidden="true" /> Quick Recall Quiz
                   </button>
                 )}
                 {hasWordMatching && (
                   <button type="button" className="lesson-activity-btn" onClick={() => navigate(`/lesson/${lesson.id}/word-matching`)}>
-                    🔤 Word Matching
+                    <Puzzle size={20} className="lesson-activity-icon" aria-hidden="true" /> Word Matching
                   </button>
                 )}
                 {storySets.map((set) => (
                   <button key={set.id} type="button" className="lesson-activity-btn" onClick={() => navigate(`/lesson/${lesson.id}/storytelling/${set.id}`)}>
-                    🎬 Storytelling — {set.title}
+                    <Clapperboard size={20} className="lesson-activity-icon" aria-hidden="true" /> Storytelling — {set.title}
                   </button>
                 ))}
                 {discussionPrompts.map((p) => (
                   <button key={p.id} type="button" className="lesson-activity-btn" onClick={() => navigate(`/lesson/${lesson.id}/discussion/${p.id}`)}>
-                    🗣️ Discussion Hub — {p.title}
+                    <MessagesSquare size={20} className="lesson-activity-icon" aria-hidden="true" /> Discussion Hub — {p.title}
                   </button>
                 ))}
                 {opinionPrompts.map((p) => (
                   <button key={p.id} type="button" className="lesson-activity-btn" onClick={() => navigate(`/lesson/${lesson.id}/opinion/${p.id}`)}>
-                    💬 Opinion Sharing — {p.title}
+                    <MessageCircle size={20} className="lesson-activity-icon" aria-hidden="true" /> Opinion Sharing — {p.title}
                   </button>
                 ))}
               </div>
