@@ -191,6 +191,15 @@ setPhase('intro')
   setPhase('results')
 }
 
+  if (error) {
+    return (
+      <div>
+        <Header {...headerProps} />
+        <main className="activity-main"><p className="dashboard-error">{error}</p></main>
+      </div>
+    )
+  }
+
   if (phase === 'loading') {
     return (
       <div>
@@ -200,11 +209,11 @@ setPhase('intro')
     )
   }
 
-  if (error || !lesson) {
+  if (!lesson) {
     return (
       <div>
         <Header {...headerProps} />
-        <main className="activity-main"><p className="dashboard-error">{error ?? 'Something went wrong.'}</p></main>
+        <main className="activity-main"><p className="dashboard-error">Something went wrong.</p></main>
       </div>
     )
   }
