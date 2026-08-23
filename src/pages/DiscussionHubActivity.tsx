@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { MessagesSquare, Mic, Square } from 'lucide-react'
 import Header from '../components/Header'
 import ActivityHeader from '../components/ActivityHeader'
 import AudioBar from '../components/AudioBar'
@@ -216,7 +217,7 @@ export default function DiscussionHubActivity() {
         <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Discussion Hub" backHref={backHref} />
         <div className="activity-body">
           <div className="dh-prompt">
-            <span className="dh-prompt-icon" aria-hidden="true">🗣️</span>
+            <MessagesSquare className="dh-prompt-icon" size={28} aria-hidden="true" />
             <div>
               <h2>"{prompt.title}"</h2>
               <p className="dh-instructions">Ang iyong sagot ay dapat hindi hihigit sa tatlong minuto at nasa wikang Ingles.</p>
@@ -247,14 +248,18 @@ export default function DiscussionHubActivity() {
             <div className="dh-record-box">
               {recordState === 'idle' && (
                 <>
-                  <button type="button" className="dh-mic-btn" onClick={startRecording} aria-label="Start recording">🎤</button>
+                  <button type="button" className="dh-mic-btn" onClick={startRecording} aria-label="Start recording">
+                    <Mic size={28} aria-hidden="true" />
+                  </button>
                   <p>Tap to record your response.</p>
                 </>
               )}
 
               {recordState === 'recording' && (
                 <>
-                  <button type="button" className="dh-mic-btn dh-mic-recording" onClick={stopRecording} aria-label="Stop recording">⏹</button>
+                  <button type="button" className="dh-mic-btn dh-mic-recording" onClick={stopRecording} aria-label="Stop recording">
+                    <Square size={24} aria-hidden="true" style={{ fill: 'currentColor' }} />
+                  </button>
                   <p>Recording... tap to stop. ({Math.floor(elapsedSeconds / 60)}:{(elapsedSeconds % 60).toString().padStart(2, '0')} / 3:00)</p>
                 </>
               )}
