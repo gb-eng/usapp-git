@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { Brain, Lightbulb, PartyPopper, CheckCircle2 } from 'lucide-react'
 import Header from '../components/Header'
 import ActivityHeader from '../components/ActivityHeader'
 import { supabase } from '../lib/supabaseClient'
@@ -222,7 +223,7 @@ setPhase('intro')
         <main className="activity-main">
           <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Quick Recall Quiz 1" backHref={backHref} />
           <div className="activity-body activity-results">
-            <span className="activity-results-icon" aria-hidden="true">✅</span>
+            <CheckCircle2 className="activity-results-icon" size={48} aria-hidden="true" />
             <h2>You've already completed this quiz</h2>
             <p className="activity-results-score">{pastScore}/{questions.length}</p>
             <p>Each Quick Recall Quiz can only be taken once.</p>
@@ -243,7 +244,7 @@ setPhase('intro')
         <main className="activity-main">
           <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Quick Recall Quiz 1" backHref={backHref} />
           <div className="activity-body activity-intro">
-            <span className="activity-intro-icon" aria-hidden="true">🧠</span>
+            <Brain className="activity-intro-icon" size={48} aria-hidden="true" />
             <h2>Quick Recall Quiz</h2>
             <p>{questions.length} questions to check what you've learned from this lesson</p>
             <p className="activity-intro-filipino">Sagutin ang mga tanong sa pinakamahusay mong makakaya.</p>
@@ -275,13 +276,13 @@ setPhase('intro')
           />
           <div className="activity-body">
             <div className="qr-prompt">
-              <span className="qr-prompt-icon" aria-hidden="true">🧠</span>
+              <Brain className="qr-prompt-icon" size={28} aria-hidden="true" />
               <p>{current.question}</p>
             </div>
 
             {current.hint && (
               <div className="qr-hint">
-                <span aria-hidden="true">💡</span> <strong>Hint:</strong> <em>{current.hint}</em>
+                <Lightbulb className="qr-hint-icon" size={16} aria-hidden="true" /> <strong>Hint:</strong> <em>{current.hint}</em>
               </div>
             )}
 
@@ -399,7 +400,7 @@ setPhase('intro')
       <main className="activity-main">
         <ActivityHeader unitLabel="Introduction to Code-switching" lessonTitle={lesson.title} activityLabel="Quick Recall Quiz 1" backHref={backHref} />
         <div className="activity-body activity-results">
-          <span className="activity-results-icon" aria-hidden="true">🎉</span>
+          <PartyPopper className="activity-results-icon" size={48} aria-hidden="true" />
           <h2>Quiz complete!</h2>
           <p className="activity-results-score">{score}/{questions.length}</p>
           <p>Great effort! You can now review your answers below.</p>
