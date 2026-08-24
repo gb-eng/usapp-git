@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import Header from '../components/Header'
 import ActivityHeader from '../components/ActivityHeader'
+import ReviewModal from '../components/ReviewModal'
 import { supabase } from '../lib/supabaseClient'
 import './ActivityShell.css'
 import './StorytellingActivity.css'
@@ -9,11 +10,26 @@ import './StorytellingActivity.css'
 type Lesson = { id: string; title: string }
 type StorySet = { id: string; lesson_id: string; title: string; photo_urls: string[] }
 type Submission = { id: string; drive_link: string | null; rating: number | null; comment: string | null; status: 'for_checking' | 'reviewed' }
+type ClassSubmission = {
+  id: string
+  student_id: string
+  display_name: string
+  drive_link: string | null
+  rating: number | null
+  comment: string | null
+  status: 'for_checking' | 'reviewed'
+  created_at: string
+}
 
 const RATING_LABEL: Record<number, string> = { 1: 'Needs Work', 2: 'Good', 3: 'Excellent' }
 
 function isDriveUrl(url: string) {
   return /^https?:\/\//.test(url.trim())
+}
+
+function initialsOf(displayName: string) {
+  const parts = displayName.trim().split(/\s+/)
+  return parts.map((p) => p[0]).join('').slice(0, 2).toUpperCase()
 }
 
 export default function StorytellingActivity() {
@@ -28,6 +44,15 @@ export default function StorytellingActivity() {
   const [videoUrl, setVideoUrl] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  const [classSubmissions, setClassSubmissions] = useState<ClassSubmission[]>([])
+  const [activeSubmission, setActiveSubmission] = useState<ClassSubmission | null>(null)
+  const [savingReview, setSavingReview] = useState(false)
+
+  async function loadClassSubmissions(targetSetId: string) {
+    const { data } = await supabase.rpc('get_storytelling_submissions', { target_story_set_id: targetSetId })
+    setClassSubmissions(data ?? [])
+  }
 
   useEffect(() => {
     async function load() {
@@ -65,6 +90,11 @@ export default function StorytellingActivity() {
       setLesson(lessonRes.data)
       setStorySet(setRes.data)
       setSubmission(subRes.data ?? null)
+
+      if (teacher) {
+        await loadClassSubmissions(setId)
+      }
+
       setLoading(false)
     }
     load()
@@ -105,6 +135,21 @@ export default function StorytellingActivity() {
       return
     }
     setSubmission(data)
+  }
+
+  async function handleConfirmReview(rating: 1 | 2 | 3, comment: string) {
+    if (!activeSubmission || !setId) return
+    setSavingReview(true)
+    const { error: updateError } = await supabase
+      .from('storytelling_submissions')
+      .update({ rating, comment, status: 'reviewed' })
+      .eq('id', activeSubmission.id)
+
+    setSavingReview(false)
+    if (!updateError) {
+      setActiveSubmission(null)
+      await loadClassSubmissions(setId)
+    }
   }
 
   const headerProps = isTeacher
@@ -153,12 +198,34 @@ export default function StorytellingActivity() {
           </div>
 
           {isTeacher ? (
-            <div className="story-hint">
-              <p>Individual student submissions for this activity aren't shown here.</p>
-              <p>
-                Review and rate them from the <Link to="/teacher">Reviews tab</Link> on your dashboard.
-              </p>
-            </div>
+            <>
+              <p className="story-teacher-label">CLASS RESPONSES</p>
+              <div className="story-teacher-list">
+                {classSubmissions.length === 0 && <p className="dashboard-muted">No submissions yet.</p>}
+                {classSubmissions.map((s) => (
+                  <div className="story-teacher-row" key={s.id}>
+                    <div className="story-teacher-row-main">
+                      <span>{s.display_name}</span>
+                      {s.status === 'reviewed' && s.rating != null ? (
+                        <span className="pill pill-green">{RATING_LABEL[s.rating]}</span>
+                      ) : (
+                        <span className="pill pill-yellow">Pending</span>
+                      )}
+                    </div>
+                    <div className="story-teacher-row-actions">
+                      {s.drive_link && (
+                        <a href={s.drive_link} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm">
+                          Open in Drive ↗
+                        </a>
+                      )}
+                      <button type="button" className="btn btn-blue btn-sm" onClick={() => setActiveSubmission(s)}>
+                        {s.status === 'reviewed' ? 'Edit Review' : 'Review'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <>
               {!submission && (
@@ -227,6 +294,22 @@ export default function StorytellingActivity() {
         </div>
       </main>
       <footer className="footer">© 2026 — Usapp</footer>
+
+      {activeSubmission && (
+        <ReviewModal
+          type="storytelling"
+          studentName={activeSubmission.display_name}
+          studentInitials={initialsOf(activeSubmission.display_name)}
+          lessonTitle={lesson.title}
+          prompt=""
+          storyTitle={storySet.title}
+          photoUrls={storySet.photo_urls}
+          videoUrl={activeSubmission.drive_link ?? undefined}
+          onClose={() => setActiveSubmission(null)}
+          onConfirm={handleConfirmReview}
+          loading={savingReview}
+        />
+      )}
     </div>
   )
 }
