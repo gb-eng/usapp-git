@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { GraduationCap, FileText, Brain, Puzzle, Clapperboard, MessagesSquare, MessageCircle } from 'lucide-react'
 import Header from '../components/Header'
 import EditClassModal from '../components/EditClassModal'
 import ReviewModal from '../components/ReviewModal'
@@ -41,10 +42,6 @@ function abbreviate(fullName: string | null | undefined) {
 function initialsOf(fullName: string | null | undefined) {
   if (!fullName) return '??'
   return fullName.trim().split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase()
-}
-
-function ratingPts(rating: number | null) {
-  return rating ? rating * 10 : 0
 }
 
 export default function TeacherDashboard() {
@@ -233,7 +230,7 @@ export default function TeacherDashboard() {
       <div>
         <Header showLogin={false} showLogout />
         <main className="dashboard-empty">
-          <span className="dashboard-empty-icon" aria-hidden="true">🎓</span>
+          <GraduationCap className="dashboard-empty-icon" size={48} aria-hidden="true" />
           <h1>Maligayang pagdating, teacher!</h1>
           <h2>No classes found.</h2>
           <p>Create one to start adding lessons and inviting students.</p>
@@ -270,7 +267,7 @@ export default function TeacherDashboard() {
       <div>
         <Header showLogin={false} showLogout />
         <main className="dashboard-empty">
-          <span className="dashboard-empty-icon" aria-hidden="true">🎓</span>
+          <GraduationCap className="dashboard-empty-icon" size={48} aria-hidden="true" />
           <h1>Maligayang pagdating, teacher!</h1>
           <h2>No classes found.</h2>
           <p>Create one to start adding lessons and inviting students.</p>
@@ -357,7 +354,10 @@ export default function TeacherDashboard() {
                   <summary><span>{lesson.title}</span><span className="chevron" aria-hidden="true">⌄</span></summary>
                   <div className="activity-list">
                     <details className="topic-row">
-                      <summary><span>📄 {lesson.title}</span><span className="chevron" aria-hidden="true">⌄</span></summary>
+                      <summary>
+                        <span className="teacher-summary-label"><FileText size={16} aria-hidden="true" /> {lesson.title}</span>
+                        <span className="chevron" aria-hidden="true">⌄</span>
+                      </summary>
                       <div className="topic-body">
                         <button
                           type="button"
@@ -366,33 +366,42 @@ export default function TeacherDashboard() {
                         >
                           View Lesson Page →
                         </button>
-                        <StudentListActivity icon="🧠" label="Quick Recall Quiz" attempts={lessonQuiz} />
-                        <StudentListActivity icon="🔤" label="Word Matching" attempts={lessonWord} />
+                        <StudentListActivity icon={<Brain size={16} aria-hidden="true" />} label="Quick Recall Quiz" attempts={lessonQuiz} />
+                        <StudentListActivity icon={<Puzzle size={16} aria-hidden="true" />} label="Word Matching" attempts={lessonWord} />
                         {lessonStorySets.map((set) => (
                           <AggregateActivity
                             key={set.id}
-                            icon="🎬"
+                            icon={<Clapperboard size={16} aria-hidden="true" />}
                             label="Storytelling"
                             title={set.title}
-                            ratings={storySubmissions.filter((s) => s.storytelling_set_id === set.id).map((s) => s.rating)}
+                            totalStudents={classScores.length}
+                            items={storySubmissions
+                              .filter((s) => s.storytelling_set_id === set.id)
+                              .map((s) => ({ id: s.id, display_name: abbreviate(s.profiles?.full_name), rating: s.rating }))}
                           />
                         ))}
                         {lessonDiscPrompts.map((p) => (
                           <AggregateActivity
                             key={p.id}
-                            icon="🗣️"
+                            icon={<MessagesSquare size={16} aria-hidden="true" />}
                             label="Discussion Hub"
                             title={p.title}
-                            ratings={discussionResponses.filter((r) => r.prompt_id === p.id).map((r) => r.rating)}
+                            totalStudents={classScores.length}
+                            items={discussionResponses
+                              .filter((r) => r.prompt_id === p.id)
+                              .map((r) => ({ id: r.id, display_name: abbreviate(r.profiles?.full_name), rating: r.rating }))}
                           />
                         ))}
                         {lessonOpPrompts.map((p) => (
                           <AggregateActivity
                             key={p.id}
-                            icon="💬"
+                            icon={<MessageCircle size={16} aria-hidden="true" />}
                             label="Opinion Sharing"
                             title={p.title}
-                            ratings={opinionResponses.filter((r) => r.prompt_id === p.id).map((r) => r.rating)}
+                            totalStudents={classScores.length}
+                            items={opinionResponses
+                              .filter((r) => r.prompt_id === p.id)
+                              .map((r) => ({ id: r.id, display_name: abbreviate(r.profiles?.full_name), rating: r.rating }))}
                           />
                         ))}
                       </div>
@@ -414,7 +423,10 @@ export default function TeacherDashboard() {
                 if (pending.length === 0) return null
                 return (
                   <details key={set.id} className="review-subgroup" open>
-                    <summary><span>🎬 {set.title}</span><span className="chevron" aria-hidden="true">⌄</span></summary>
+                    <summary>
+                      <span className="teacher-summary-label"><Clapperboard size={16} aria-hidden="true" /> {set.title}</span>
+                      <span className="chevron" aria-hidden="true">⌄</span>
+                    </summary>
                     <div className="review-subgroup-list">
                       {pending.map((s) => (
                         <div className="review-subgroup-row" key={s.id}>
@@ -434,7 +446,10 @@ export default function TeacherDashboard() {
                 if (pending.length === 0) return null
                 return (
                   <details key={p.id} className="review-subgroup" open>
-                    <summary><span>🗣️ "{p.title}"</span><span className="chevron" aria-hidden="true">⌄</span></summary>
+                    <summary>
+                      <span className="teacher-summary-label"><MessagesSquare size={16} aria-hidden="true" /> "{p.title}"</span>
+                      <span className="chevron" aria-hidden="true">⌄</span>
+                    </summary>
                     <div className="review-subgroup-list">
                       {pending.map((r) => (
                         <div className="review-subgroup-row" key={r.id}>
@@ -454,7 +469,10 @@ export default function TeacherDashboard() {
                 if (pending.length === 0) return null
                 return (
                   <details key={p.id} className="review-subgroup" open>
-                    <summary><span>💬 "{p.title}"</span><span className="chevron" aria-hidden="true">⌄</span></summary>
+                    <summary>
+                      <span className="teacher-summary-label"><MessageCircle size={16} aria-hidden="true" /> "{p.title}"</span>
+                      <span className="chevron" aria-hidden="true">⌄</span>
+                    </summary>
                     <div className="review-subgroup-list">
                       {pending.map((r) => (
                         <div className="review-subgroup-row" key={r.id}>
@@ -572,12 +590,15 @@ export default function TeacherDashboard() {
   )
 }
 
-function StudentListActivity({ icon, label, attempts }: { icon: string; label: string; attempts: (QuizAttempt | WordAttempt)[] }) {
+function StudentListActivity({ icon, label, attempts }: { icon: React.ReactNode; label: string; attempts: (QuizAttempt | WordAttempt)[] }) {
   const [expanded, setExpanded] = useState(false)
   const visible = expanded ? attempts : attempts.slice(0, 2)
   return (
     <details className="teacher-activity-row" open>
-      <summary><span>{icon} {label}</span><span className="chevron" aria-hidden="true">⌄</span></summary>
+      <summary>
+        <span className="teacher-summary-label">{icon} {label}</span>
+        <span className="chevron" aria-hidden="true">⌄</span>
+      </summary>
       <div className="teacher-activity-body">
         {attempts.length === 0 && <p className="dashboard-muted">No attempts yet.</p>}
         {visible.map((a) => (
@@ -596,17 +617,45 @@ function StudentListActivity({ icon, label, attempts }: { icon: string; label: s
   )
 }
 
-function AggregateActivity({ icon, label, title, ratings }: { icon: string; label: string; title: string; ratings: (number | null)[] }) {
-  const rated = ratings.filter((r): r is number => r != null)
-  const avgPts = rated.length ? Math.round(rated.reduce((sum, r) => sum + ratingPts(r), 0) / rated.length) : 0
+function AggregateActivity({
+  icon,
+  label,
+  title,
+  items,
+  totalStudents,
+}: {
+  icon: React.ReactNode
+  label: string
+  title: string
+  items: { id: string; display_name: string; rating: number | null }[]
+  totalStudents: number
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const visible = expanded ? items : items.slice(0, 2)
+  const ratingLabel: Record<number, string> = { 1: 'Needs Work', 2: 'Good', 3: 'Excellent' }
   return (
     <details className="teacher-activity-row" open>
-      <summary><span>{icon} {label}</span><span className="chevron" aria-hidden="true">⌄</span></summary>
+      <summary>
+        <span className="teacher-summary-label">{icon} {label}</span>
+        <span className="chevron" aria-hidden="true">⌄</span>
+      </summary>
       <div className="teacher-activity-body">
         <div className="teacher-activity-student-row">
           <span>"{title}"</span>
-          <span>{rated.length > 0 ? `${avgPts}/30` : 'No ratings yet'}</span>
+          <span>{items.length}/{totalStudents} submitted</span>
         </div>
+        {items.length === 0 && <p className="dashboard-muted">No submissions yet.</p>}
+        {visible.map((it) => (
+          <div className="teacher-activity-student-row" key={it.id}>
+            <span>{it.display_name}</span>
+            <span>{it.rating != null ? ratingLabel[it.rating] : 'Pending'}</span>
+          </div>
+        ))}
+        {items.length > 2 && !expanded && (
+          <button type="button" className="teacher-more-link" onClick={() => setExpanded(true)}>
+            + {items.length - 2} more students
+          </button>
+        )}
       </div>
     </details>
   )
