@@ -60,6 +60,17 @@ export default function EditClassModal({
   const [generationMessage, setGenerationMessage] = useState<string | null>(null)
   const [generationError, setGenerationError] = useState<string | null>(null)
 
+  const [hasQuickRecall, setHasQuickRecall] = useState(false)
+  const [hasWordMatching, setHasWordMatching] = useState(false)
+
+  type PendingRemoval = {
+    kind: 'discussion' | 'opinion' | 'storytelling' | 'quick_recall' | 'word_matching'
+    id: string
+    label: string
+  }
+  const [pendingRemoval, setPendingRemoval] = useState<PendingRemoval | null>(null)
+  const [removing, setRemoving] = useState(false)
+
   useEffect(() => {
     loadLessons()
   }, [classId])
@@ -75,14 +86,17 @@ export default function EditClassModal({
   }
 
   async function loadActivitiesForLesson(lessonId: string) {
-    const [{ data: discussion }, { data: opinion }, { data: story }] = await Promise.all([
+    const [{ data: discussion }, { data: opinion }, { data: story }, { data: activitySets }] = await Promise.all([
       supabase.from('discussion_prompts').select('id, title').eq('lesson_id', lessonId),
       supabase.from('opinion_prompts').select('id, title').eq('lesson_id', lessonId),
       supabase.from('storytelling_sets').select('id, title, photo_urls').eq('lesson_id', lessonId),
+      supabase.from('lesson_activity_sets').select('activity_type').eq('lesson_id', lessonId),
     ])
     setExistingDiscussionPrompts(discussion ?? [])
     setExistingOpinionPrompts(opinion ?? [])
     setExistingStorySets(story ?? [])
+    setHasQuickRecall((activitySets ?? []).some((a) => a.activity_type === 'quick_recall'))
+    setHasWordMatching((activitySets ?? []).some((a) => a.activity_type === 'word_matching'))
   }
 
   function openFormFor(lessonId: string) {
@@ -94,6 +108,8 @@ export default function EditClassModal({
       setExistingDiscussionPrompts([])
       setExistingOpinionPrompts([])
       setExistingStorySets([])
+      setHasQuickRecall(false)
+      setHasWordMatching(false)
     } else {
       const lesson = lessons.find((l) => l.id === lessonId)
       setSelectedLessonId(lessonId)
@@ -418,6 +434,83 @@ const { data: bankItems, error: bankError } = await supabase
     setStep('success')
   }
 
+  async function handleConfirmRemoval() {
+    if (!pendingRemoval) return
+    setRemoving(true)
+    setError(null)
+
+    const lessonId = savingLessonId ?? (selectedLessonId !== 'new' ? selectedLessonId : null)
+
+    if (pendingRemoval.kind === 'discussion') {
+      await supabase.from('discussion_responses').delete().eq('prompt_id', pendingRemoval.id)
+      const { error: delError } = await supabase.from('discussion_prompts').delete().eq('id', pendingRemoval.id)
+      if (delError) {
+        setError(delError.message)
+        setRemoving(false)
+        return
+      }
+      setExistingDiscussionPrompts((prev) => prev.filter((p) => p.id !== pendingRemoval.id))
+    } else if (pendingRemoval.kind === 'opinion') {
+      await supabase.from('opinion_responses').delete().eq('prompt_id', pendingRemoval.id)
+      const { error: delError } = await supabase.from('opinion_prompts').delete().eq('id', pendingRemoval.id)
+      if (delError) {
+        setError(delError.message)
+        setRemoving(false)
+        return
+      }
+      setExistingOpinionPrompts((prev) => prev.filter((p) => p.id !== pendingRemoval.id))
+    } else if (pendingRemoval.kind === 'storytelling') {
+      const set = existingStorySets.find((s) => s.id === pendingRemoval.id)
+      await supabase.from('storytelling_submissions').delete().eq('storytelling_set_id', pendingRemoval.id)
+      const { error: delError } = await supabase.from('storytelling_sets').delete().eq('id', pendingRemoval.id)
+      if (delError) {
+        setError(delError.message)
+        setRemoving(false)
+        return
+      }
+      // Best-effort storage cleanup -- don't block the removal on this failing.
+      if (set?.photo_urls?.length) {
+        const paths = set.photo_urls
+          .map((url) => url.split('/storytelling-photos/')[1])
+          .filter((p): p is string => Boolean(p))
+        if (paths.length) {
+          await supabase.storage.from('storytelling-photos').remove(paths)
+        }
+      }
+      setExistingStorySets((prev) => prev.filter((s) => s.id !== pendingRemoval.id))
+    } else if (pendingRemoval.kind === 'quick_recall' && lessonId) {
+      await supabase.from('quiz_attempts').delete().eq('lesson_id', lessonId)
+      const { error: delError } = await supabase
+        .from('lesson_activity_sets')
+        .delete()
+        .eq('lesson_id', lessonId)
+        .eq('activity_type', 'quick_recall')
+      if (delError) {
+        setError(delError.message)
+        setRemoving(false)
+        return
+      }
+      setHasQuickRecall(false)
+    } else if (pendingRemoval.kind === 'word_matching' && lessonId) {
+      await supabase.from('word_attempts').delete().eq('lesson_id', lessonId)
+      const { error: delError } = await supabase
+        .from('lesson_activity_sets')
+        .delete()
+        .eq('lesson_id', lessonId)
+        .eq('activity_type', 'word_matching')
+      if (delError) {
+        setError(delError.message)
+        setRemoving(false)
+        return
+      }
+      setHasWordMatching(false)
+    }
+
+    setRemoving(false)
+    setPendingRemoval(null)
+    onLessonsChanged()
+  }
+
   async function handleDeleteLesson() {
     if (selectedLessonId === 'new') return
     setLoading(true)
@@ -440,6 +533,21 @@ const { data: bankItems, error: bankError } = await supabase
       return
     }
     onClassRemoved()
+  }
+
+  if (pendingRemoval) {
+    return (
+      <ConfirmModal
+        icon="🗑️"
+        title={`Remove "${pendingRemoval.label}"?`}
+        message="This deletes the activity and any student responses/scores tied to it. This can't be undone."
+        confirmLabel="Remove"
+        variant="red"
+        loading={removing}
+        onClose={() => setPendingRemoval(null)}
+        onConfirm={handleConfirmRemoval}
+      />
+    )
   }
 
   if (step === 'removeConfirm') {
@@ -589,7 +697,18 @@ const { data: bankItems, error: bankError } = await supabase
               <>
                 <p className="edit-class-existing-label">Existing Discussion Prompts</p>
                 <ul className="edit-class-existing-list">
-                  {existingDiscussionPrompts.map((p) => <li key={p.id}>✓ {p.title}</li>)}
+                  {existingDiscussionPrompts.map((p) => (
+                    <li key={p.id} className="edit-class-staged-photo">
+                      <span>✓ {p.title}</span>
+                      <button
+                        type="button"
+                        className="edit-class-remove-photo"
+                        onClick={() => setPendingRemoval({ kind: 'discussion', id: p.id, label: p.title })}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
                 </ul>
               </>
             )}
@@ -608,7 +727,18 @@ const { data: bankItems, error: bankError } = await supabase
               <>
                 <p className="edit-class-existing-label">Existing Opinion Prompts</p>
                 <ul className="edit-class-existing-list">
-                  {existingOpinionPrompts.map((p) => <li key={p.id}>✓ {p.title}</li>)}
+                  {existingOpinionPrompts.map((p) => (
+                    <li key={p.id} className="edit-class-staged-photo">
+                      <span>✓ {p.title}</span>
+                      <button
+                        type="button"
+                        className="edit-class-remove-photo"
+                        onClick={() => setPendingRemoval({ kind: 'opinion', id: p.id, label: p.title })}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
                 </ul>
               </>
             )}
@@ -628,7 +758,16 @@ const { data: bankItems, error: bankError } = await supabase
                 <p className="edit-class-existing-label">Existing Storytelling Sets</p>
                 <ul className="edit-class-existing-list">
                   {existingStorySets.map((s) => (
-                    <li key={s.id}>✓ {s.title} ({s.photo_urls?.length ?? 0} photo{s.photo_urls?.length === 1 ? '' : 's'})</li>
+                    <li key={s.id} className="edit-class-staged-photo">
+                      <span>✓ {s.title} ({s.photo_urls?.length ?? 0} photo{s.photo_urls?.length === 1 ? '' : 's'})</span>
+                      <button
+                        type="button"
+                        className="edit-class-remove-photo"
+                        onClick={() => setPendingRemoval({ kind: 'storytelling', id: s.id, label: s.title })}
+                      >
+                        Remove
+                      </button>
+                    </li>
                   ))}
                 </ul>
               </>
@@ -714,8 +853,18 @@ const { data: bankItems, error: bankError } = await supabase
               >
                 {generatingActivity === 'quick_recall'
                   ? 'Generating...'
-                  : 'Generate Quick Recall'}
+                  : hasQuickRecall ? 'Regenerate Quick Recall' : 'Generate Quick Recall'}
               </button>
+              {hasQuickRecall && (
+                <button
+                  type="button"
+                  className="btn btn-danger-light btn-sm"
+                  disabled={loading || generatingActivity !== null}
+                  onClick={() => setPendingRemoval({ kind: 'quick_recall', id: selectedLessonId, label: 'Quick Recall' })}
+                >
+                  Remove Quick Recall
+                </button>
+              )}
             </div>
 
                 <div className="edit-class-generation-section">
@@ -732,8 +881,18 @@ const { data: bankItems, error: bankError } = await supabase
       >
         {generatingActivity === 'word_matching'
           ? 'Generating...'
-          : 'Generate Word Matching'}
+          : hasWordMatching ? 'Regenerate Word Matching' : 'Generate Word Matching'}
       </button>
+      {hasWordMatching && (
+        <button
+          type="button"
+          className="btn btn-danger-light btn-sm"
+          disabled={loading || generatingActivity !== null}
+          onClick={() => setPendingRemoval({ kind: 'word_matching', id: selectedLessonId, label: 'Word Matching' })}
+        >
+          Remove Word Matching
+        </button>
+      )}
     </div>
 
     {/* PUT IT HERE */}
