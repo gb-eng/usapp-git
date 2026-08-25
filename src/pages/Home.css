@@ -14,8 +14,7 @@
   transform: translateX(-50%);
   width: 700px;
   height: 400px;
-  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--color-blue) 18%, transparent) 0%, transparent 65%),
-              radial-gradient(ellipse at 30% 70%, color-mix(in srgb, var(--color-yellow-bg) 20%, transparent) 0%, transparent 60%);
+  background: var(--gradient-ambient-glow);
   pointer-events: none;
   z-index: 0;
 }

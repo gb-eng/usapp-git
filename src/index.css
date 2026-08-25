@@ -29,6 +29,15 @@
 
   --font-heading: 'Baloo 2', sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Shared gradient from Home's hero glow, extracted so other pages can
+     reuse the same look. Consumers still set their own size/position
+     (see .home-hero-glow in Home.css and .dashboard-header-glow in
+     StudentDashboard.css) and need `position: relative; overflow: hidden;`
+     on the parent to clip it correctly. */
+  --gradient-ambient-glow:
+    radial-gradient(ellipse at center, color-mix(in srgb, var(--color-blue) 18%, transparent) 0%, transparent 65%),
+    radial-gradient(ellipse at 30% 70%, color-mix(in srgb, var(--color-yellow-bg) 20%, transparent) 0%, transparent 60%);
 }
 
 * { box-sizing: border-box; }
@@ -60,6 +69,18 @@ button, input, textarea, select {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* ---- Ambient glow ---- */
+/* Base version of Home's hero glow, for reuse elsewhere. A consuming
+   component adds this class alongside one that sets width/height/
+   top/left (see .home-hero-glow, .dashboard-header-glow), and needs
+   `position: relative; overflow: hidden;` on the parent. */
+.ambient-glow {
+  position: absolute;
+  background: var(--gradient-ambient-glow);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ---- Buttons ---- */

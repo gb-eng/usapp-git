@@ -14,11 +14,22 @@
   margin-bottom: 0;
   background: var(--color-card-bg);
   box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-header-glow {
+  top: -80px;
+  right: -60px;
+  width: 320px;
+  height: 220px;
 }
 
 .dashboard-header-left {
   display: flex;
   gap: 16px;
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-header-left h1 {
@@ -45,6 +56,11 @@
   font-size: 18px;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
+}
+
+.dashboard-header-card > .btn {
+  position: relative;
+  z-index: 1;
 }
 
 .section-title {

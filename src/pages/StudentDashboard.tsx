@@ -175,9 +175,13 @@ export default function StudentDashboard() {
     // Record this as a membership too, so it shows up in the
     // multi-class switcher going forward. join_class_by_code()
     // itself is untouched.
-    await supabase
+    const { error: membershipError } = await supabase
       .from('class_memberships')
       .insert({ student_id: user.id, class_id: (classRow as ClassRow).id })
+
+    if (membershipError) {
+      console.error('Failed to record class membership:', membershipError)
+    }
 
     await loadClassData(classRow as ClassRow, user.id)
     await loadMemberships(user.id)
@@ -362,6 +366,7 @@ export default function StudentDashboard() {
       <Header showLogin={false} showLogout showLeaderboards showMyProfile profileHref="/student" />
       <main className="student-dashboard">
         <div className="dashboard-header-card">
+          <div className="ambient-glow dashboard-header-glow" aria-hidden="true" />
           <div className="dashboard-header-left">
             <span className="avatar-circle" aria-hidden="true">{initials}</span>
             <div>
