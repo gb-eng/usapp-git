@@ -37,10 +37,18 @@ export default function StudentDashboard() {
   const [profile, setProfile] = useState<{ full_name: string | null } | null>(null)
   const [joinedClass, setJoinedClass] = useState<ClassRow | null>(null)
 
-  // Join form
+  // Join form (first class)
   const [code, setCode] = useState('')
   const [joining, setJoining] = useState(false)
   const [joinError, setJoinError] = useState<string | null>(null)
+
+  // Multi-class: memberships list + switching + join-another-class form
+  const [memberships, setMemberships] = useState<ClassRow[]>([])
+  const [switching, setSwitching] = useState(false)
+  const [showAddClass, setShowAddClass] = useState(false)
+  const [addCode, setAddCode] = useState('')
+  const [joiningAdditional, setJoiningAdditional] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
 
   // Dashboard data
   const [tab, setTab] = useState<Tab>('lessons')
@@ -86,6 +94,22 @@ export default function StudentDashboard() {
     if (rankRes.data && rankRes.data[0]) setRank(rankRes.data[0])
   }
 
+  // Fetches the full list of classes this student belongs to
+  // (used for the class-switcher chips). Independent of which
+  // class is currently "active" (profiles.class_id).
+  async function loadMemberships(userId: string) {
+    const { data } = await supabase
+      .from('class_memberships')
+      .select('classes(id, grade_strand, section, class_code)')
+      .eq('student_id', userId)
+
+    const rows = (data ?? [])
+      .map((m: any) => m.classes)
+      .filter(Boolean) as ClassRow[]
+
+    setMemberships(rows)
+  }
+
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -113,6 +137,8 @@ export default function StudentDashboard() {
           await loadClassData(classRow, user.id)
         }
       }
+
+      await loadMemberships(user.id)
 
       setLoading(false)
     }
@@ -146,20 +172,98 @@ export default function StudentDashboard() {
       return
     }
 
+    // Record this as a membership too, so it shows up in the
+    // multi-class switcher going forward. join_class_by_code()
+    // itself is untouched.
+    await supabase
+      .from('class_memberships')
+      .insert({ student_id: user.id, class_id: (classRow as ClassRow).id })
+
     await loadClassData(classRow as ClassRow, user.id)
+    await loadMemberships(user.id)
     setJoining(false)
+  }
+
+  async function handleJoinAdditionalClass(e: React.FormEvent) {
+    e.preventDefault()
+    setAddError(null)
+
+    const trimmedCode = addCode.trim().toUpperCase()
+    if (!trimmedCode) {
+      setAddError('Please enter a class code.')
+      return
+    }
+    setJoiningAdditional(true)
+
+    const { error } = await supabase.rpc('join_additional_class', { input_code: trimmedCode })
+
+    if (error) {
+      setJoiningAdditional(false)
+      setAddError('No class found with that code, or you already joined it.')
+      return
+    }
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) await loadMemberships(user.id)
+
+    setAddCode('')
+    setShowAddClass(false)
+    setJoiningAdditional(false)
+  }
+
+  async function handleSwitchClass(classId: string) {
+    if (joinedClass && classId === joinedClass.id) return
+    setSwitching(true)
+
+    const { error } = await supabase.rpc('switch_active_class', { target_class_id: classId })
+
+    if (!error) {
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data: classRow } = await supabase
+        .from('classes')
+        .select('id, grade_strand, section, class_code')
+        .eq('id', classId)
+        .maybeSingle()
+
+      if (classRow && user) {
+        setRank(null)
+        await loadClassData(classRow as ClassRow, user.id)
+      }
+    }
+
+    setSwitching(false)
   }
 
   async function handleLeaveClass() {
     setLeaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      await supabase.from('profiles').update({ class_id: null }).eq('id', user.id)
+
+    if (user && joinedClass) {
+      await supabase
+        .from('class_memberships')
+        .delete()
+        .eq('student_id', user.id)
+        .eq('class_id', joinedClass.id)
+
+      const remaining = memberships.filter((m) => m.id !== joinedClass.id)
+
+      if (remaining.length > 0) {
+        // Auto-switch to another joined class rather than leaving
+        // the student with no active class.
+        await supabase.rpc('switch_active_class', { target_class_id: remaining[0].id })
+        setRank(null)
+        await loadClassData(remaining[0], user.id)
+        await loadMemberships(user.id)
+      } else {
+        await supabase.from('profiles').update({ class_id: null }).eq('id', user.id)
+        setJoinedClass(null)
+        setLessons([])
+        setMemberships([])
+      }
     }
+
     setLeaving(false)
     setShowLeaveModal(false)
-    setJoinedClass(null)
-    setLessons([])
   }
 
   if (loading) {
@@ -270,6 +374,45 @@ export default function StudentDashboard() {
             Leave Class
           </button>
         </div>
+
+        {memberships.length > 0 && (
+          <div className="class-switcher">
+            {memberships.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                className={m.id === joinedClass.id ? 'class-chip class-chip-active' : 'class-chip'}
+                onClick={() => handleSwitchClass(m.id)}
+                disabled={switching}
+              >
+                {m.grade_strand} · {m.section}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="class-chip class-chip-add"
+              onClick={() => setShowAddClass((v) => !v)}
+            >
+              + Join another class
+            </button>
+          </div>
+        )}
+
+        {showAddClass && (
+          <form className="join-class-form join-additional-form" onSubmit={handleJoinAdditionalClass}>
+            <input
+              type="text"
+              placeholder="ABCDEFG"
+              value={addCode}
+              onChange={(e) => setAddCode(e.target.value.toUpperCase())}
+              maxLength={8}
+            />
+            {addError && <p className="dashboard-error">{addError}</p>}
+            <button type="submit" className="btn btn-blue btn-sm" disabled={joiningAdditional}>
+              {joiningAdditional ? 'Joining...' : 'Join'}
+            </button>
+          </form>
+        )}
 
         <div className="tab-toggle">
           <button

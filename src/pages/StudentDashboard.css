@@ -271,6 +271,44 @@
   gap: 8px;
 }
 
+.class-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.class-chip {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--color-card-bg);
+  color: var(--color-text-secondary);
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.class-chip:hover {
+  border-color: var(--color-blue);
+  color: var(--color-text);
+}
+
+.class-chip-active {
+  border-color: var(--color-blue);
+  background: var(--color-blue);
+  color: #fff;
+}
+
+.class-chip-add {
+  border-style: dashed;
+}
+
+.join-additional-form {
+  margin-top: 12px;
+  max-width: 280px;
+}
+
 @media (max-width: 640px) {
   .dashboard-header-card {
     flex-direction: column;
@@ -301,5 +339,13 @@
 
   .activity-detail {
     padding-left: 0;
+  }
+
+  .class-switcher {
+    gap: 6px;
+  }
+
+  .join-additional-form {
+    max-width: none;
   }
 }
