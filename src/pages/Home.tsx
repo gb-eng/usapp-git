@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Brain, MessagesSquare, Puzzle, Clapperboard } from 'lucide-react'
 import Header from '../components/Header'
 import { supabase } from '../lib/supabaseClient'
 import './Home.css'
 
 const features = [
-  { icon: '🧠', title: 'Quick Recall', desc: "Engage in a short quiz after every lesson to check what you've learned." },
-  { icon: '💬', title: 'Class Participation', desc: 'Share your voice or write your thoughts on class discussions.' },
-  { icon: '🈴', title: 'Word Matching', desc: 'Practice vocabulary through matching words, meanings, and examples.' },
-  { icon: '🎬', title: 'Storytelling', desc: 'Tell a story from a picture sequence and share it with your teacher.' },
+  { Icon: Brain, tint: 'blue', title: 'Quick Recall', desc: "Engage in a short quiz after every lesson to check what you've learned." },
+  { Icon: MessagesSquare, tint: 'red', title: 'Class Participation', desc: 'Share your voice or write your thoughts on class discussions.' },
+  { Icon: Puzzle, tint: 'yellow', title: 'Word Matching', desc: 'Practice vocabulary through matching words, meanings, and examples.' },
+  { Icon: Clapperboard, tint: 'blue', title: 'Storytelling', desc: 'Tell a story from a picture sequence and share it with your teacher.' },
 ]
 
 export default function Home() {
@@ -27,7 +28,6 @@ export default function Home() {
         navigate(profile.role === 'teacher' ? '/teacher' : '/student')
         return
       }
-      // Confirmed account, no profile row yet -- same case Login.tsx/RequireRole handle.
       navigate('/complete-profile')
     }
     checkAuth()
@@ -39,6 +39,7 @@ export default function Home() {
     <div>
       <Header />
       <main className="home-main">
+        <div className="home-hero-glow" aria-hidden="true" />
         <h1 className="home-title">
           Practice English, with a little Filipino support along the way
         </h1>
@@ -52,7 +53,9 @@ export default function Home() {
         <div className="home-features">
           {features.map((f) => (
             <div className="feature-card" key={f.title}>
-              <div className="feature-icon" aria-hidden="true">{f.icon}</div>
+              <div className={`feature-icon feature-icon-${f.tint}`} aria-hidden="true">
+                <f.Icon size={24} />
+              </div>
               <h3>{f.title}</h3>
               <p>{f.desc}</p>
             </div>

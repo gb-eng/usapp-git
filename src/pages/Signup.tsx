@@ -67,14 +67,30 @@ export default function SignUp() {
     }
 
     if (data.session) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({ id: data.user.id, role, full_name: fullName })
+      if (role === 'teacher') {
+        // Server-side re-validation lives in signup_as_teacher (SECURITY DEFINER) --
+        // the earlier validate_teacher_code check above is just fast UI feedback,
+        // this is the real gate that also performs the insert.
+        const { error: profileError } = await supabase.rpc('signup_as_teacher', {
+          input_code: teacherCode.trim(),
+          input_full_name: fullName,
+        })
 
-      if (profileError) {
-        setError(profileError.message)
-        setSubmitting(false)
-        return
+        if (profileError) {
+          setError(profileError.message)
+          setSubmitting(false)
+          return
+        }
+      } else {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({ id: data.user.id, role, full_name: fullName })
+
+        if (profileError) {
+          setError(profileError.message)
+          setSubmitting(false)
+          return
+        }
       }
 
       navigate(role === 'teacher' ? '/teacher' : '/student')
