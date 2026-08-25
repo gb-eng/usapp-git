@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import logo from '../assets/logo.png'
 import './Header.css'
 
 interface HeaderProps {
@@ -21,7 +22,6 @@ export default function Header({
   homeHref = '/',
   profileHref = '/student',
 }: HeaderProps) {
-  <Link to={homeHref} className="header-logo"></Link>
   const navigate = useNavigate()
 
   async function handleLogout() {
@@ -31,8 +31,8 @@ export default function Header({
 
   return (
     <header className="header">
-      <Link to="/" className="header-logo">
-        <span className="header-logo-mark" aria-hidden="true">⌘</span>
+      <Link to={homeHref} className="header-logo">
+        <img src={logo} alt="" className="header-logo-mark" />
         <h3>Usapp</h3>
       </Link>
       <nav className="header-nav">

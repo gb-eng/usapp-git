@@ -225,3 +225,15 @@ button:focus-visible, input:focus-visible, a:focus-visible, [tabindex]:focus-vis
     transition-duration: 0.01ms !important;
   }
 }
+
+@media (max-width: 480px) {
+  .tab-toggle {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-btn {
+    white-space: nowrap;
+  }
+}

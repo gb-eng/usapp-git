@@ -318,13 +318,6 @@ export default function EditClassModal({
       return
     }
 
-    console.log('STORYTELLING INSERT PAYLOAD', {
-      lesson_id: lessonId,
-      title: storyTitle.trim(),
-      photo_urls: photoUrls,
-      pictures: photoUrls,
-    })
-
     const { data, error: insertError } = await supabase
       .from('storytelling_sets')
       .insert({
@@ -351,13 +344,6 @@ export default function EditClassModal({
   const lessonId = await ensureLessonSaved()
   if (!lessonId) return
 
-  console.log('GENERATE DEBUG:', {
-    activityType: activityType,
-    lessonId: lessonId,
-    selectedLessonId: selectedLessonId,
-    savingLessonId: savingLessonId,
-  })
-
   setGeneratingActivity(activityType)
   setGenerationMessage(null)
   setGenerationError(null)
@@ -368,12 +354,6 @@ const { data: bankItems, error: bankError } = await supabase
   .from(table)
   .select('id')
   .limit(100)
-
-  console.log("BANK DEBUG", {
-  table,
-  count: bankItems?.length,
-  items: bankItems
-})
 
   if (bankError) {
     setGenerationError(bankError.message)

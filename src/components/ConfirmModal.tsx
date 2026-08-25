@@ -31,7 +31,7 @@ export default function ConfirmModal({
         <p>{message}</p>
         <button
           type="button"
-          className={variant === 'red' ? 'btn btn-danger btn-lg' : 'btn btn-blue btn-lg'}
+          className={variant === 'red' ? 'btn btn-leave btn-lg' : 'btn btn-blue btn-lg'}
           onClick={onConfirm}
           disabled={loading}
         >

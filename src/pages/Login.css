@@ -53,7 +53,7 @@
 }
 
 .login-error {
-  color: var(--color-red-text);
+  color: var(--color-red);
   font-size: 13px;
   margin-bottom: 12px;
   animation: fadeSlideIn 0.2s ease;

@@ -125,3 +125,10 @@
   color: var(--color-text-secondary);
   font-size: 14px;
 }
+
+@media (max-width: 480px) {
+  .create-class-fields {
+    flex-direction: column;
+    gap: 14px;
+  }
+}

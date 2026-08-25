@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Header from '../components/Header'
 import { supabase } from '../lib/supabaseClient'
+import helpIllustration from '../assets/help.png'
 import './Help.css'
 
 export default function Help() {
@@ -41,7 +42,7 @@ export default function Help() {
               language flexibility, Usapp makes learning seamless, fun, and tailored to your pace.
             </p>
           </div>
-          <div className="help-illustration" aria-hidden="true">🗨️</div>
+          <img src={helpIllustration} alt="" className="help-illustration" />
         </section>
 
         <section>

@@ -17,7 +17,8 @@
 }
 
 .header-logo-mark {
-  font-size: 20px;
+  height: 32px;
+  width: auto;
   display: inline-block;
   transition: transform var(--transition-base);
 }

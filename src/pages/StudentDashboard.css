@@ -270,3 +270,36 @@
   align-items: center;
   gap: 8px;
 }
+
+@media (max-width: 640px) {
+  .dashboard-header-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .dashboard-header-card > .btn {
+    width: 100%;
+  }
+
+  .rank-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .story-teacher-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .story-teacher-row-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .activity-detail {
+    padding-left: 0;
+  }
+}

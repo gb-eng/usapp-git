@@ -26,8 +26,10 @@
 .help-intro > div:first-child { flex: 1; }
 
 .help-illustration {
-  font-size: 60px;
+  width: 220px;
+  height: auto;
   flex-shrink: 0;
+  border-radius: var(--radius-lg);
   transition: transform var(--transition-base);
 }
 
