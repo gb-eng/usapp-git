@@ -34,10 +34,18 @@
      reuse the same look. Consumers still set their own size/position
      (see .home-hero-glow in Home.css and .dashboard-header-glow in
      StudentDashboard.css) and need `position: relative; overflow: hidden;`
-     on the parent to clip it correctly. */
+     on the parent to clip it correctly.
+
+     Uses explicit rgba() stops with matching RGB per color, fading only
+     the alpha channel to 0 -- fading to the literal `transparent` keyword
+     interpolates through black on the way down (it's rgba(0,0,0,0)),
+     which produces a visible muddy/hard-edged seam instead of a clean
+     fade, especially at smaller sizes. Same colors as before
+     (--color-blue #4F6EF7, --color-yellow-bg #F5D98B), same opacities
+     (18%, 20%), just written as rgba so the hue holds all the way out. */
   --gradient-ambient-glow:
-    radial-gradient(ellipse at center, color-mix(in srgb, var(--color-blue) 18%, transparent) 0%, transparent 65%),
-    radial-gradient(ellipse at 30% 70%, color-mix(in srgb, var(--color-yellow-bg) 20%, transparent) 0%, transparent 60%);
+    radial-gradient(ellipse at center, rgba(79, 110, 247, 0.18) 0%, rgba(79, 110, 247, 0) 65%),
+    radial-gradient(ellipse at 30% 70%, rgba(245, 217, 139, 0.20) 0%, rgba(245, 217, 139, 0) 60%);
 }
 
 * { box-sizing: border-box; }
