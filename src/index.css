@@ -30,22 +30,27 @@
   --font-heading: 'Baloo 2', sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
 
-  /* Shared gradient from Home's hero glow, extracted so other pages can
-     reuse the same look. Consumers still set their own size/position
-     (see .home-hero-glow in Home.css and .dashboard-header-glow in
-     StudentDashboard.css) and need `position: relative; overflow: hidden;`
-     on the parent to clip it correctly.
+  /* Ambient glow, take 2 — blurred solid circles instead of a radial
+     gradient. The old gradient approach (see git history) produced a
+     visible hard rectangular edge on every surface that positions the
+     glow partially outside its own box (`top: -60px` etc. with
+     `overflow: hidden` on the parent) — the overflow clip was cutting
+     the gradient off mid-fade, before it reached its own transparent
+     edge, rather than the gradient itself having a hard edge.
 
-     Uses explicit rgba() stops with matching RGB per color, fading only
-     the alpha channel to 0 -- fading to the literal `transparent` keyword
-     interpolates through black on the way down (it's rgba(0,0,0,0)),
-     which produces a visible muddy/hard-edged seam instead of a clean
-     fade, especially at smaller sizes. Same colors as before
-     (--color-blue #4F6EF7, --color-yellow-bg #F5D98B), same opacities
-     (18%, 20%), just written as rgba so the hue holds all the way out. */
-  --gradient-ambient-glow:
-    radial-gradient(ellipse at center, rgba(79, 110, 247, 0.18) 0%, rgba(79, 110, 247, 0) 65%),
-    radial-gradient(ellipse at 30% 70%, rgba(245, 217, 139, 0.20) 0%, rgba(245, 217, 139, 0) 60%);
+     A blurred solid circle sidesteps this: the blur creates the falloff
+     directly, so wherever the overflow boundary clips it, what's cut is
+     already soft. Two colors = two circles = ::before/::after per
+     surface (see .ambient-glow below for the div-based dashboard-header
+     usage, and Login.css/DashboardEmpty.css/Modal.css for the
+     pseudo-element usage on cards).
+
+     Same base hues as before (--color-blue #4F6EF7, --color-yellow-bg
+     #F5D98B), opacity bumped up a bit from the old gradient's peak
+     (18%/20% -> 28%/32%) since blur softens perceived intensity. */
+  --color-glow-blue: rgba(79, 110, 247, 0.28);
+  --color-glow-yellow: rgba(245, 217, 139, 0.32);
+  --blur-ambient-glow: 44px;
 }
 
 * { box-sizing: border-box; }
@@ -80,15 +85,46 @@ a {
 }
 
 /* ---- Ambient glow ---- */
-/* Base version of Home's hero glow, for reuse elsewhere. A consuming
-   component adds this class alongside one that sets width/height/
-   top/left (see .home-hero-glow, .dashboard-header-glow), and needs
-   `position: relative; overflow: hidden;` on the parent. */
+/* Container for the div-based usage (dashboard headers). A consuming
+   component adds this class alongside one that sets the container's own
+   width/height/top/left (see .dashboard-header-glow in
+   StudentDashboard.css), and needs `position: relative; overflow: hidden;`
+   on the card/section it sits in. The two colored blobs are its own
+   ::before/::after, sized as percentages of this container so they scale
+   with whatever size the consumer gives it.
+
+   NOTE: StudentDashboard.css / TeacherDashboard.tsx weren't in this batch
+   of files, so this container-based version is untested against the
+   actual dashboard header markup — worth a visual check before calling
+   the header glow done. */
 .ambient-glow {
   position: absolute;
-  background: var(--gradient-ambient-glow);
   pointer-events: none;
   z-index: 0;
+}
+
+.ambient-glow::before,
+.ambient-glow::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(var(--blur-ambient-glow));
+}
+
+.ambient-glow::before {
+  top: 0;
+  left: 0;
+  width: 65%;
+  height: 65%;
+  background: var(--color-glow-blue);
+}
+
+.ambient-glow::after {
+  bottom: 0;
+  left: 20%;
+  width: 55%;
+  height: 55%;
+  background: var(--color-glow-yellow);
 }
 
 /* ---- Buttons ---- */
