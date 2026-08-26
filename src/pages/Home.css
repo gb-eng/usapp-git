@@ -7,16 +7,42 @@
   overflow: hidden;
 }
 
+/* Full-page version of the ambient glow: two blurred blobs spanning the
+   whole .home-main container (top: hero copy, all the way down through
+   the feature grid), rather than a single fixed-size patch pinned to the
+   top like the original hero-only version. Same blur-based technique as
+   the card surfaces (see index.css) -- diagonal placement (top-left to
+   mid-right) gives a wash across the full height instead of a single
+   centered puddle. */
 .home-hero-glow {
   position: absolute;
-  top: -120px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 700px;
-  height: 400px;
-  background: var(--gradient-ambient-glow);
+  inset: 0;
   pointer-events: none;
   z-index: 0;
+}
+
+.home-hero-glow::before,
+.home-hero-glow::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+
+.home-hero-glow::before {
+  top: -10%;
+  left: 8%;
+  width: 60%;
+  height: 42%;
+  background: var(--color-glow-blue);
+}
+
+.home-hero-glow::after {
+  top: 38%;
+  right: 4%;
+  width: 55%;
+  height: 42%;
+  background: var(--color-glow-yellow);
 }
 
 .home-title {
@@ -58,7 +84,12 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 22px;
-  background: var(--color-card-bg);
+  /* Was a solid var(--color-card-bg) -- now translucent + blurred so the
+     glow behind the grid shows through the cards instead of stopping at
+     a hard white wall. */
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   transition: box-shadow var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
 }
 

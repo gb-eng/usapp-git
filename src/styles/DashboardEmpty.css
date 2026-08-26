@@ -135,6 +135,30 @@
   letter-spacing: 2px;
 }
 
+/* Compact variant for when .class-code-box is reused inline inside
+   TeacherDashboard's .dashboard-header-card row, instead of centered
+   full-width like on the empty-state ("Create a Class") screen. Without
+   this, the base width: 100% stretches it across the whole remaining
+   header width. */
+.dashboard-header-card .class-code-box {
+  width: auto;
+  margin-bottom: 0;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.dashboard-header-card .class-code-box p {
+  margin: 0;
+}
+
+.dashboard-header-card .class-code {
+  font-size: 18px;
+  margin: 0 !important;
+}
+
 .dashboard-error {
   color: #C0392B;
   font-size: 13px;
