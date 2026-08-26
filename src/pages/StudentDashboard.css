@@ -58,7 +58,8 @@
   box-shadow: var(--shadow-sm);
 }
 
-.dashboard-header-card > .btn {
+.dashboard-header-card > .btn,
+.dashboard-header-card > .class-code-box {
   position: relative;
   z-index: 1;
 }

@@ -300,6 +300,7 @@ export default function TeacherDashboard() {
       <Header showLogin={false} showLogout showLeaderboards showMyProfile profileHref="/teacher" />
       <main className="teacher-dashboard">
         <div className="dashboard-header-card">
+          <div className="ambient-glow dashboard-header-glow" aria-hidden="true" />
           <div className="dashboard-header-left">
             <span className="avatar-circle avatar-circle-blue" aria-hidden="true">{initialsOf(teacherName)}</span>
             <div>
