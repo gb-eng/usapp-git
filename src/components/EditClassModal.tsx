@@ -76,13 +76,24 @@ export default function EditClassModal({
   }, [classId])
 
   async function loadLessons() {
+    const data = await refreshLessons()
+    if (data.length > 0) setSelectedLessonId(data[0].id)
+  }
+
+  // Refetches `lessons` only -- unlike loadLessons(), this never touches
+  // selectedLessonId. Called after creating a new lesson mid-session so
+  // that lessons.length (used for the *next* new lesson's order_index)
+  // stays accurate, without yanking the open form back to a different
+  // lesson the way a full loadLessons() call would.
+  async function refreshLessons() {
     const { data } = await supabase
       .from('lessons')
       .select('id, title, intro, body')
       .eq('class_id', classId)
       .order('order_index')
-    setLessons(data ?? [])
-    if (data && data.length > 0) setSelectedLessonId(data[0].id)
+    const fresh = data ?? []
+    setLessons(fresh)
+    return fresh
   }
 
   async function loadActivitiesForLesson(lessonId: string) {
@@ -174,6 +185,7 @@ export default function EditClassModal({
 
     lessonId = data.id
     setSavingLessonId(data.id)
+    await refreshLessons()
   }
 
   setLoading(false)
