@@ -1,7 +1,8 @@
+import type { LucideIcon } from 'lucide-react'
 import './Modal.css'
 
 interface ConfirmModalProps {
-  icon: string
+  icon: LucideIcon
   title: string
   message: string
   confirmLabel: string
@@ -13,7 +14,7 @@ interface ConfirmModalProps {
 }
 
 export default function ConfirmModal({
-  icon,
+  icon: Icon,
   title,
   message,
   confirmLabel,
@@ -26,7 +27,7 @@ export default function ConfirmModal({
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="modal-close" onClick={onClose} aria-label="Close">×</button>
-        <span className="modal-icon" aria-hidden="true">{icon}</span>
+        <Icon size={40} className="modal-icon" aria-hidden="true" />
         <h2>{title}</h2>
         <p>{message}</p>
         <button
