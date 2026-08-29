@@ -48,8 +48,11 @@ export default function TeacherDashboard() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
-  const [existingClass, setExistingClass] = useState<ClassRow | null>(null)
+  const [classes, setClasses] = useState<ClassRow[]>([])
+  const [activeClassId, setActiveClassId] = useState<string | null>(null)
   const [createdClass, setCreatedClass] = useState<ClassRow | null>(null)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [switchingClass, setSwitchingClass] = useState(false)
   const [teacherName, setTeacherName] = useState<string | null>(null)
 
   const [gradeStrand, setGradeStrand] = useState(STRAND_OPTIONS[0])
@@ -92,16 +95,27 @@ export default function TeacherDashboard() {
       return
     }
 
-    const [{ data, error: fetchError }, { data: profileRow }] = await Promise.all([
-      supabase.from('classes').select('id, grade_strand, section, class_code').eq('teacher_id', user.id).maybeSingle(),
-      supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle(),
+    const [{ data: classRows, error: fetchError }, { data: profileRow }] = await Promise.all([
+      supabase.from('classes').select('id, grade_strand, section, class_code').eq('teacher_id', user.id).order('created_at'),
+      supabase.from('profiles').select('full_name, active_teacher_class_id').eq('id', user.id).maybeSingle(),
     ])
 
     setTeacherName(profileRow?.full_name ?? null)
 
-    if (!fetchError && data) {
-      setExistingClass(data)
-      await loadDashboardData(data.id)
+    if (!fetchError && classRows) {
+      setClasses(classRows)
+      if (classRows.length > 0) {
+        const stored = (profileRow as { active_teacher_class_id?: string | null } | null)?.active_teacher_class_id
+        const initial = classRows.find((c) => c.id === stored)?.id ?? classRows[0].id
+        setActiveClassId(initial)
+        await loadDashboardData(initial)
+        // Keep the server pointer in sync if it was missing/stale (e.g. the
+        // previously-active class was removed) — fire-and-forget, doesn't
+        // block the UI.
+        if (stored !== initial) {
+          supabase.rpc('switch_active_teacher_class', { target_class_id: initial })
+        }
+      }
     }
     setLoading(false)
   }
@@ -115,7 +129,19 @@ export default function TeacherDashboard() {
 
     const lessonIds = (lessonRows ?? []).map((l) => l.id)
     setLessons(lessonRows ?? [])
-    if (lessonIds.length === 0) return
+    if (lessonIds.length === 0) {
+      setQuizAttempts([])
+      setWordAttempts([])
+      setDiscussionPrompts([])
+      setOpinionPrompts([])
+      setStorySets([])
+      setDiscussionResponses([])
+      setOpinionResponses([])
+      setStorySubmissions([])
+      const { data: scoresData } = await supabase.rpc('get_teacher_class_scores', { target_class_id: classId })
+      setClassScores(scoresData ?? [])
+      return
+    }
 
     const [quizRes, wordRes, discPromptRes, opPromptRes, storySetRes, discRes, opRes, storyRes, scoresRes] = await Promise.all([
       supabase.from('quiz_attempts').select('id, lesson_id, student_id, score, answers, profiles(full_name)').in('lesson_id', lessonIds),
@@ -126,7 +152,7 @@ export default function TeacherDashboard() {
       supabase.from('discussion_responses').select('id, lesson_id, prompt_id, student_id, rating, comment, audio_url, profiles(full_name)').in('lesson_id', lessonIds),
       supabase.from('opinion_responses').select('id, lesson_id, prompt_id, student_id, rating, comment, content_text, profiles(full_name)').in('lesson_id', lessonIds),
       supabase.from('storytelling_submissions').select('id, lesson_id, storytelling_set_id, student_id, rating, comment, drive_link, profiles(full_name)').in('lesson_id', lessonIds),
-      supabase.rpc('get_teacher_class_scores'),
+      supabase.rpc('get_teacher_class_scores', { target_class_id: classId }),
     ])
 
     setQuizAttempts((quizRes.data as unknown as QuizAttempt[]) ?? [])
@@ -138,6 +164,25 @@ export default function TeacherDashboard() {
     setOpinionResponses((opRes.data as unknown as OpinionResponse[]) ?? [])
     setStorySubmissions((storyRes.data as unknown as StorySubmission[]) ?? [])
     setClassScores(scoresRes.data ?? [])
+  }
+
+  function resetTabState() {
+    setTab('lessons')
+    setScorePage(0)
+    setExpandedScoreRow(null)
+    setShowClassCode(false)
+  }
+
+  async function handleSwitchClass(classId: string) {
+    if (classId === activeClassId || switchingClass) return
+    setSwitchingClass(true)
+    const { error } = await supabase.rpc('switch_active_teacher_class', { target_class_id: classId })
+    if (!error) {
+      setActiveClassId(classId)
+      resetTabState()
+      await loadDashboardData(classId)
+    }
+    setSwitchingClass(false)
   }
 
   async function handleCreateClass(e: React.FormEvent) {
@@ -173,8 +218,24 @@ export default function TeacherDashboard() {
     }
 
     setCreating(false)
-    if (inserted) setCreatedClass(inserted)
-    else if (!createError) setCreateError('Could not generate a unique class code. Please try again.')
+    if (inserted) {
+      setSection('')
+      setCreatedClass(inserted)
+    } else if (!createError) {
+      setCreateError('Could not generate a unique class code. Please try again.')
+    }
+  }
+
+  async function handleProceedFromCreate() {
+    if (!createdClass) return
+    const newClass = createdClass
+    setClasses((prev) => [...prev, newClass])
+    setActiveClassId(newClass.id)
+    setCreatedClass(null)
+    setShowCreateForm(false)
+    resetTabState()
+    await loadDashboardData(newClass.id)
+    await supabase.rpc('switch_active_teacher_class', { target_class_id: newClass.id })
   }
 
   function openReview(kind: 'discussion' | 'opinion' | 'storytelling', item: any) {
@@ -202,13 +263,13 @@ export default function TeacherDashboard() {
 
     const { error } = await supabase.from(table).update({ rating, comment, status: 'reviewed' }).eq('id', activeReview.item.id)
     setSavingReview(false)
-    if (!error && existingClass) {
+    if (!error && activeClassId) {
       setActiveReview(null)
-      await loadDashboardData(existingClass.id)
+      await loadDashboardData(activeClassId)
     }
   }
 
-  const activeClass = createdClass ?? existingClass
+  const activeClass = classes.find((c) => c.id === activeClassId) ?? null
 
   const pendingDiscussion = discussionResponses.filter((r) => r.rating == null)
   const pendingOpinion = opinionResponses.filter((r) => r.rating == null)
@@ -232,8 +293,8 @@ export default function TeacherDashboard() {
         <main className="dashboard-empty">
           <GraduationCap className="dashboard-empty-icon" size={48} aria-hidden="true" />
           <h1>Maligayang pagdating, teacher!</h1>
-          <h2>No classes found.</h2>
-          <p>Create one to start adding lessons and inviting students.</p>
+          <h2>{classes.length === 0 ? 'No classes found.' : 'Class created!'}</h2>
+          <p>{classes.length === 0 ? 'Create one to start adding lessons and inviting students.' : 'Share the code below with your new class.'}</p>
           <div className="create-class-fields">
             <div className="field">
               <label>Grade & Strand</label>
@@ -252,7 +313,7 @@ export default function TeacherDashboard() {
           <button
             type="button"
             className="btn btn-blue btn-lg"
-            onClick={() => { setExistingClass(createdClass); setCreatedClass(null) }}
+            onClick={handleProceedFromCreate}
           >
             Proceed to Class Dashboard
           </button>
@@ -262,14 +323,14 @@ export default function TeacherDashboard() {
     )
   }
 
-  if (!activeClass) {
+  if (showCreateForm || classes.length === 0) {
     return (
       <div>
         <Header showLogin={false} showLogout />
         <main className="dashboard-empty">
           <GraduationCap className="dashboard-empty-icon" size={48} aria-hidden="true" />
           <h1>Maligayang pagdating, teacher!</h1>
-          <h2>No classes found.</h2>
+          <h2>{classes.length === 0 ? 'No classes found.' : 'Add another class'}</h2>
           <p>Create one to start adding lessons and inviting students.</p>
           <form className="create-class-form" onSubmit={handleCreateClass}>
             <div className="create-class-fields">
@@ -289,8 +350,27 @@ export default function TeacherDashboard() {
               {creating ? 'Creating...' : 'Create Class'}
             </button>
           </form>
+          {classes.length > 0 && (
+            <button
+              type="button"
+              className="btn btn-outline"
+              style={{ marginTop: 12 }}
+              onClick={() => { setShowCreateForm(false); setCreateError(null) }}
+            >
+              Cancel
+            </button>
+          )}
         </main>
         <footer className="footer">© 2026 — Usapp</footer>
+      </div>
+    )
+  }
+
+  if (!activeClass) {
+    return (
+      <div>
+        <Header showLogin={false} showLogout />
+        <main className="dashboard-empty"><p>Loading...</p></main>
       </div>
     )
   }
@@ -320,6 +400,25 @@ export default function TeacherDashboard() {
               Show Class Code
             </button>
           )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', margin: '16px 0' }}>
+          {classes.length > 1 && (
+            <select
+              aria-label="Switch class"
+              value={activeClassId ?? ''}
+              disabled={switchingClass}
+              onChange={(e) => handleSwitchClass(e.target.value)}
+              style={{ maxWidth: 260 }}
+            >
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>{c.grade_strand} — Section {c.section}</option>
+              ))}
+            </select>
+          )}
+          <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowCreateForm(true)}>
+            + Add Class
+          </button>
         </div>
 
         <div className="teacher-tab-row">
@@ -542,7 +641,22 @@ export default function TeacherDashboard() {
           className="Introduction to Code-switching"
           onClose={() => setShowEditClass(false)}
           onLessonsChanged={() => loadDashboardData(activeClass.id)}
-          onClassRemoved={() => { setShowEditClass(false); setExistingClass(null); setLessons([]) }}
+          onClassRemoved={() => {
+            setShowEditClass(false)
+            const removedId = activeClass.id
+            const remaining = classes.filter((c) => c.id !== removedId)
+            setClasses(remaining)
+            setLessons([])
+            if (remaining.length > 0) {
+              const next = remaining[0].id
+              setActiveClassId(next)
+              resetTabState()
+              loadDashboardData(next)
+              supabase.rpc('switch_active_teacher_class', { target_class_id: next })
+            } else {
+              setActiveClassId(null)
+            }
+          }}
         />
       )}
 
