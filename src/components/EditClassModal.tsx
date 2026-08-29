@@ -668,9 +668,14 @@ const { data: bankItems, error: bankError } = await supabase
             />
 
             {error && <p className="dashboard-error">{error}</p>}
-            {topicSaved && (
+            {topicSaved && <p className="edit-class-success">✓ Topic saved.</p>}
+            {savingLessonId && (
               <div className="edit-class-topic-saved">
-                <p className="edit-class-success">✓ Topic saved. Editing this field again will UPDATE this same lesson.</p>
+                <p className="edit-class-existing-label">
+                  {topicSaved
+                    ? 'Editing these fields again will UPDATE this same lesson.'
+                    : 'You are editing an existing lesson — changes will update it, not create a new one.'}
+                </p>
                 <button type="button" className="btn btn-outline" onClick={() => openFormFor('new')}>
                   + This is a different lesson — start a new one
                 </button>

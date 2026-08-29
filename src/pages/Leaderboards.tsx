@@ -80,6 +80,16 @@ export default function Leaderboards() {
     load()
   }, [activity, role, activeClassId])
 
+  // Persists the switch the same way the dashboard switcher does, so
+  // "active class" stays one consistent concept across the app rather than
+  // this page silently diverging from what the dashboard shows.
+  async function handleSwitchClass(classId: string) {
+    if (classId === activeClassId) return
+    setActiveClassId(classId)
+    const { error } = await supabase.rpc('switch_active_teacher_class', { target_class_id: classId })
+    if (error) console.error('switch_active_teacher_class (leaderboards) failed:', error)
+  }
+
   const podium = entries.slice(0, 3)
   const rest = entries.slice(3)
   const pageStart = page * PAGE_SIZE
@@ -103,7 +113,7 @@ export default function Leaderboards() {
               <select
                 aria-label="Class"
                 value={activeClassId ?? ''}
-                onChange={(e) => setActiveClassId(e.target.value)}
+                onChange={(e) => handleSwitchClass(e.target.value)}
                 style={{ maxWidth: 260 }}
               >
                 {classes.map((c) => (

@@ -110,10 +110,14 @@ export default function TeacherDashboard() {
         setActiveClassId(initial)
         await loadDashboardData(initial)
         // Keep the server pointer in sync if it was missing/stale (e.g. the
-        // previously-active class was removed) — fire-and-forget, doesn't
-        // block the UI.
+        // previously-active class was removed) — fire-and-forget on purpose
+        // (doesn't block the UI, since the local state is already correct
+        // either way), but log if it fails so a persistent server/client
+        // mismatch doesn't go unnoticed.
         if (stored !== initial) {
-          supabase.rpc('switch_active_teacher_class', { target_class_id: initial })
+          supabase.rpc('switch_active_teacher_class', { target_class_id: initial }).then(({ error }) => {
+            if (error) console.error('switch_active_teacher_class (auto-sync) failed:', error)
+          })
         }
       }
     }
@@ -235,7 +239,8 @@ export default function TeacherDashboard() {
     setShowCreateForm(false)
     resetTabState()
     await loadDashboardData(newClass.id)
-    await supabase.rpc('switch_active_teacher_class', { target_class_id: newClass.id })
+    const { error } = await supabase.rpc('switch_active_teacher_class', { target_class_id: newClass.id })
+    if (error) console.error('switch_active_teacher_class (after create) failed:', error)
   }
 
   function openReview(kind: 'discussion' | 'opinion' | 'storytelling', item: any) {
@@ -638,7 +643,7 @@ export default function TeacherDashboard() {
       {showEditClass && (
         <EditClassModal
           classId={activeClass.id}
-          className="Introduction to Code-switching"
+          className={`${activeClass.grade_strand} — Section ${activeClass.section}`}
           onClose={() => setShowEditClass(false)}
           onLessonsChanged={() => loadDashboardData(activeClass.id)}
           onClassRemoved={() => {
@@ -652,7 +657,9 @@ export default function TeacherDashboard() {
               setActiveClassId(next)
               resetTabState()
               loadDashboardData(next)
-              supabase.rpc('switch_active_teacher_class', { target_class_id: next })
+              supabase.rpc('switch_active_teacher_class', { target_class_id: next }).then(({ error }) => {
+                if (error) console.error('switch_active_teacher_class (after class removal) failed:', error)
+              })
             } else {
               setActiveClassId(null)
             }
