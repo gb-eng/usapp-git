@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { Trash2 } from 'lucide-react'
 import ConfirmModal from './ConfirmModal'
 import SuccessModal from './SuccessModal'
 import './Modal.css'
@@ -530,7 +531,7 @@ const { data: bankItems, error: bankError } = await supabase
   if (pendingRemoval) {
     return (
       <ConfirmModal
-        icon="🗑️"
+        icon={Trash2}
         title={`Remove "${pendingRemoval.label}"?`}
         message="This deletes the activity and any student responses/scores tied to it. This can't be undone."
         confirmLabel="Remove"
@@ -545,7 +546,7 @@ const { data: bankItems, error: bankError } = await supabase
   if (step === 'removeConfirm') {
     return (
       <ConfirmModal
-        icon="🗑️"
+        icon={Trash2}
         title="Remove Class?"
         message="Removing the class will erase all progress."
         confirmLabel="Remove Class"
@@ -560,7 +561,7 @@ const { data: bankItems, error: bankError } = await supabase
   if (step === 'deleteConfirm') {
     return (
       <ConfirmModal
-        icon="🗑️"
+        icon={Trash2}
         title="Delete this lesson?"
         message="Deleting a lesson also removes its activities and any student progress on it."
         confirmLabel="Delete"

@@ -6,6 +6,7 @@ import './Login.css'
 
 export default function CompleteProfile() {
   const [role, setRole] = useState<'student' | 'teacher'>('student')
+  const [registeredRole, setRegisteredRole] = useState<'student' | 'teacher' | null>(null)
   const [fullName, setFullName] = useState('')
   const [teacherCode, setTeacherCode] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -17,7 +18,10 @@ export default function CompleteProfile() {
       const { data: { user } } = await supabase.auth.getUser()
       const meta = user?.user_metadata as { full_name?: string; role?: string } | undefined
       if (meta?.full_name) setFullName(meta.full_name)
-      if (meta?.role === 'teacher' || meta?.role === 'student') setRole(meta.role)
+      if (meta?.role === 'teacher' || meta?.role === 'student') {
+        setRole(meta.role)
+        setRegisteredRole(meta.role)
+      }
     }
     prefill()
   }, [])
@@ -32,30 +36,40 @@ export default function CompleteProfile() {
       return
     }
 
+    // Role is locked to whatever the user actually registered as (from auth
+    // metadata), regardless of local toggle state — the toggle can't be used
+    // to submit a different role than the one that was signed up for.
+    const submitRole = registeredRole ?? role
+
     setSubmitting(true)
 
-    if (role === 'teacher') {
-      const { data: valid, error: codeError } = await supabase.rpc('validate_teacher_code', {
+    if (submitRole === 'teacher') {
+      const { error: rpcError } = await supabase.rpc('signup_as_teacher', {
         input_code: teacherCode.trim(),
+        input_full_name: fullName,
       })
-      if (codeError || !valid) {
-        setError('Invalid teacher code. Check with your school admin.')
+      if (rpcError) {
+        setError(
+          rpcError.message.toLowerCase().includes('code')
+            ? 'Invalid teacher code. Check with your school admin.'
+            : rpcError.message
+        )
+        setSubmitting(false)
+        return
+      }
+    } else {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({ id: user.id, role: 'student', full_name: fullName })
+
+      if (profileError) {
+        setError(profileError.message)
         setSubmitting(false)
         return
       }
     }
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({ id: user.id, role, full_name: fullName })
-
-    if (profileError) {
-      setError(profileError.message)
-      setSubmitting(false)
-      return
-    }
-
-    navigate(role === 'teacher' ? '/teacher' : '/student')
+    navigate(submitRole === 'teacher' ? '/teacher' : '/student')
   }
 
   return (
@@ -72,18 +86,27 @@ export default function CompleteProfile() {
             <button
               type="button"
               className={role === 'student' ? 'btn btn-blue' : 'btn btn-outline'}
-              onClick={() => setRole('student')}
+              onClick={() => registeredRole === null && setRole('student')}
+              disabled={registeredRole !== null && registeredRole !== 'student'}
+              aria-disabled={registeredRole !== null && registeredRole !== 'student'}
             >
               Student
             </button>
             <button
               type="button"
               className={role === 'teacher' ? 'btn btn-blue' : 'btn btn-outline'}
-              onClick={() => setRole('teacher')}
+              onClick={() => registeredRole === null && setRole('teacher')}
+              disabled={registeredRole !== null && registeredRole !== 'teacher'}
+              aria-disabled={registeredRole !== null && registeredRole !== 'teacher'}
             >
               Teacher
             </button>
           </div>
+          {registeredRole && (
+            <p style={{ fontSize: '0.85rem', opacity: 0.7, marginTop: -8, marginBottom: 16 }}>
+              You signed up as a {registeredRole}. This can't be changed here.
+            </p>
+          )}
 
           <form onSubmit={handleSubmit}>
             <label htmlFor="fullName">Full name</label>

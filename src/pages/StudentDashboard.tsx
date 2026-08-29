@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import Header from '../components/Header'
 import ConfirmModal from '../components/ConfirmModal'
+import { DoorOpen } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient'
 import '../styles/DashboardEmpty.css'
 import './StudentDashboard.css'
@@ -524,7 +525,7 @@ export default function StudentDashboard() {
 
       {showLeaveModal && (
         <ConfirmModal
-          icon="🚪"
+          icon={DoorOpen}
           title="Leave Class?"
           message="If you leave a class, you will lose all progress and scores."
           confirmLabel="Leave Class"
