@@ -36,10 +36,10 @@ export default function Home() {
   if (checking) return null
 
   return (
-    <div>
+    <div className="home-page">
+      <div className="home-hero-glow" aria-hidden="true" />
       <Header />
       <main className="home-main">
-        <div className="home-hero-glow" aria-hidden="true" />
         <h1 className="home-title">
           Practice English, with a little Filipino support along the way
         </h1>

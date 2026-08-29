@@ -1,19 +1,12 @@
-.home-main {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 60px 24px 40px;
-  text-align: center;
+.home-page {
   position: relative;
-  overflow: hidden;
 }
 
-/* Full-page version of the ambient glow: two blurred blobs spanning the
-   whole .home-main container (top: hero copy, all the way down through
-   the feature grid), rather than a single fixed-size patch pinned to the
-   top like the original hero-only version. Same blur-based technique as
-   the card surfaces (see index.css) -- diagonal placement (top-left to
-   mid-right) gives a wash across the full height instead of a single
-   centered puddle. */
+/* Full-page glow, take 2. This now lives outside .home-main (a centered
+   900px column) so it isn't bounded by that column's width or height --
+   it's sized/positioned relative to the whole page wrapper instead, using
+   viewport units so it reliably spans header-through-features regardless
+   of exact page length, rather than percentages of one container's box. */
 .home-hero-glow {
   position: absolute;
   inset: 0;
@@ -26,23 +19,31 @@
   content: '';
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(90px);
 }
 
 .home-hero-glow::before {
-  top: -10%;
-  left: 8%;
-  width: 60%;
-  height: 42%;
+  top: -5vh;
+  left: 5%;
+  width: 50vw;
+  height: 45vh;
   background: var(--color-glow-blue);
 }
 
 .home-hero-glow::after {
-  top: 38%;
-  right: 4%;
-  width: 55%;
-  height: 42%;
+  top: 35vh;
+  right: 0;
+  width: 55vw;
+  height: 45vh;
   background: var(--color-glow-yellow);
+}
+
+.home-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 24px 40px;
+  text-align: center;
+  position: relative;
 }
 
 .home-title {
@@ -84,9 +85,6 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 22px;
-  /* Was a solid var(--color-card-bg) -- now translucent + blurred so the
-     glow behind the grid shows through the cards instead of stopping at
-     a hard white wall. */
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
